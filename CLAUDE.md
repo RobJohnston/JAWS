@@ -125,11 +125,8 @@ sudo /opt/bitnami/ctlscript.sh restart apache
 
 **Apply Migration:**
 ```bash
-# Modern method (recommended)
+# Apply migrations using Phinx
 vendor/bin/phinx migrate
-
-# Legacy method (deprecated - for reference only)
-# sqlite3 database/jaws.db < database/migrations/archive/002_new_migration.sql
 ```
 
 **Backup Database:**

@@ -44,13 +44,6 @@ Thumbs.db
 # Debug files
 database/assignment_debug.txt
 
-# LocalStack
-/LocalStack/.env.localstack
-/LocalStack/localstack-data/
-
-# Phinx migration backups
-/database/migrations/archive/*.backup
-
 # Temporary test files
 /tests/temp/
 

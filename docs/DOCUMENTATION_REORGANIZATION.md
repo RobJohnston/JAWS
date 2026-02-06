@@ -119,10 +119,7 @@ The JAWS documentation has been reorganized from a single 1968-line README.md in
 
 ### Archived Documents
 
-#### **docs/archive/REFACTOR_HISTORY.md**
-- Formerly `docs/REFACTOR_CLEAN_ARCHITECTURE.md`
-- Preserved for historical reference
-- Still referenced from README.md in "Project History" section
+Historical documents have been removed as they are no longer needed. The project history is preserved in the `legacy/` folder.
 
 ## Navigation Flows
 
