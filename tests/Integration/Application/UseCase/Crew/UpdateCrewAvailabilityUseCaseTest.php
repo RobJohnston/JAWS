@@ -17,6 +17,7 @@ use App\Infrastructure\Persistence\SQLite\EventRepository;
 use App\Infrastructure\Persistence\SQLite\Connection;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use Tests\TestHelper;
 
 /**
  * Integration tests for UpdateCrewAvailabilityUseCase
@@ -69,23 +70,17 @@ class UpdateCrewAvailabilityUseCaseTest extends TestCase
     // ==================== HELPER METHODS ====================
 
     /**
-     * Run database migrations
+     * Run database migrations using Phinx
      */
     private function runMigrations(): void
     {
-        $schemaFile = __DIR__ . '/../../../../fixtures/schema/001_initial_schema.sql';
-        $userSchemaFile = __DIR__ . '/../../../../fixtures/schema/002_add_users_authentication.sql';
-
-        foreach ([$schemaFile, $userSchemaFile] as $file) {
-            if (file_exists($file)) {
-                $schema = file_get_contents($file);
-                $this->executeSqlStatements($schema);
-            }
-        }
+        TestHelper::runPhinxMigrations($this->pdo);
     }
 
     /**
      * Execute SQL statements from a schema file
+     * 
+     * @deprecated No longer needed - kept for reference
      */
     private function executeSqlStatements(string $sql): void
     {

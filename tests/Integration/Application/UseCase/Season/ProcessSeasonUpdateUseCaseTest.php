@@ -18,6 +18,7 @@ use App\Domain\ValueObject\EventId;
 use App\Domain\Enum\AvailabilityStatus;
 use PHPUnit\Framework\TestCase;
 use PDO;
+use Tests\TestHelper;
 
 /**
  * Integration tests for ProcessSeasonUpdateUseCase
@@ -40,39 +41,8 @@ class ProcessSeasonUpdateUseCaseTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Load complete schema from SQL file
-        $schemaFile = __DIR__ . '/../../../../fixtures/schema/001_initial_schema.sql';
-        $schema = file_get_contents($schemaFile);
-
-        // Remove comments and parse SQL statements
-        $lines = explode("\n", $schema);
-        $cleanedSql = '';
-        foreach ($lines as $line) {
-            $line = trim($line);
-            // Skip empty lines and comment-only lines
-            if (empty($line) || str_starts_with($line, '--')) {
-                continue;
-            }
-            // Remove inline comments
-            $commentPos = strpos($line, '--');
-            if ($commentPos !== false) {
-                $line = substr($line, 0, $commentPos);
-            }
-            $cleanedSql .= $line . "\n";
-        }
-
-        // Execute each SQL statement
-        $statements = explode(';', $cleanedSql);
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-            if (!empty($statement)) {
-                try {
-                    $this->pdo->exec($statement);
-                } catch (\PDOException $e) {
-                    // Ignore errors for statements that might not work in test environment
-                }
-            }
-        }
+        // Run Phinx migrations
+        TestHelper::runPhinxMigrations($this->pdo);
 
         Connection::setTestConnection($this->pdo);
 
