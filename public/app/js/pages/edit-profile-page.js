@@ -11,6 +11,9 @@ import { validatePassword, getPasswordRequirementsHTML } from '../passwordValida
 import { showSuccess, showError } from '../toastService.js';
 import { addAdminLink } from '../navigationService.js';
 
+// Make signOut available globally for onclick handlers
+window.signOut = signOut;
+
 // Require authentication
 if (!requireAuth()) {
     // requireAuth redirects to signin.html if not authenticated
@@ -22,8 +25,8 @@ if (!user) {
     window.location.href = 'signin.html';
 }
 
-// Update navigation with user's name and attach sign-out handler
-updateAuthenticatedNavigation(user, signOut);
+// Populate username in nav
+document.getElementById('nav-username').textContent = user.profile.firstName;
 
 // Add admin link if user is admin
 addAdminLink(user);

@@ -12,6 +12,9 @@ import { API_CONFIG } from '../config.js';
 import { showSuccess, showError, showInfo } from '../toastService.js';
 import { addAdminLink } from '../navigationService.js';
 
+// Make signOut available globally for onclick handlers
+window.signOut = signOut;
+
 // Require authentication
 if (!requireAuth()) {
     // requireAuth redirects to signin.html if not authenticated
@@ -33,6 +36,7 @@ updateAuthenticatedNavigation(user, signOut);
 
 // Populate username in hero
 document.getElementById('hero-username').textContent = user.profile.firstName;
+document.getElementById('nav-username').textContent = user.profile.firstName;
 
 // Add admin link if user is admin
 addAdminLink(user);
