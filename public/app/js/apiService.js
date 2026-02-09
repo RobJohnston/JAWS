@@ -209,8 +209,7 @@ export async function getAllEvents() {
  * @returns {Promise<Object>} Event object with flotilla data
  */
 export async function getEventById(eventId) {
-    const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.EVENT_BY_ID.replace(':id', eventId);
-    const response = await get(url);
+    const response = await get(API_CONFIG.ENDPOINTS.EVENT_BY_ID, { id: eventId });
     // API returns { success: true, data: { event: {...}, flotilla: {...} } }
     return response.data || null;
 }

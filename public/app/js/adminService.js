@@ -4,7 +4,7 @@
  */
 
 import * as apiService from './apiService.js';
-import { buildApiUrl, API_CONFIG } from './config.js';
+import { API_CONFIG } from './config.js';
 
 /**
  * Get matching data for an event (capacity analysis)
@@ -13,8 +13,7 @@ import { buildApiUrl, API_CONFIG } from './config.js';
  */
 export async function getMatchingData(eventId) {
     try {
-        const url = buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_MATCHING, { eventId });
-        const response = await apiService.get(url);
+        const response = await apiService.get(API_CONFIG.ENDPOINTS.ADMIN_MATCHING, { eventId });
 
         if (!response.success) {
             throw new Error(response.message || 'Failed to load matching data');
@@ -35,10 +34,9 @@ export async function getMatchingData(eventId) {
  */
 export async function sendNotifications(eventId, includeCalendar = true) {
     try {
-        const url = buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_NOTIFICATIONS, { eventId });
-        const response = await apiService.post(url, {
+        const response = await apiService.post(API_CONFIG.ENDPOINTS.ADMIN_NOTIFICATIONS, {
             include_calendar: includeCalendar
-        });
+        }, { eventId });
 
         if (!response.success) {
             throw new Error(response.message || 'Failed to send notifications');
@@ -57,8 +55,7 @@ export async function sendNotifications(eventId, includeCalendar = true) {
  */
 export async function getSeasonConfig() {
     try {
-        const url = buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_CONFIG);
-        const response = await apiService.get(url);
+        const response = await apiService.get(API_CONFIG.ENDPOINTS.ADMIN_CONFIG);
 
         if (!response.success) {
             throw new Error(response.message || 'Failed to load season configuration');
@@ -78,8 +75,7 @@ export async function getSeasonConfig() {
  */
 export async function updateSeasonConfig(configData) {
     try {
-        const url = buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_CONFIG);
-        const response = await apiService.patch(url, configData);
+        const response = await apiService.patch(API_CONFIG.ENDPOINTS.ADMIN_CONFIG, configData);
 
         if (!response.success) {
             throw new Error(response.message || 'Failed to update season configuration');
