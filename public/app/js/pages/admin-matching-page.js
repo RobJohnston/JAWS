@@ -72,7 +72,9 @@ function populateEventSelect() {
     allEvents.forEach(event => {
         const option = document.createElement('option');
         option.value = event.eventId;
-        option.textContent = `${event.eventId} (${new Date(event.date).toLocaleDateString()})`;
+        // Parse date as local date by appending time component
+        const localDate = new Date(event.date + 'T12:00:00');
+        option.textContent = `${event.eventId} (${localDate.toLocaleDateString()})`;
         select.appendChild(option);
     });
 

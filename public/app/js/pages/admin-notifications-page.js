@@ -74,7 +74,9 @@ function populateEventSelect() {
     allEvents.forEach(event => {
         const option = document.createElement('option');
         option.value = event.eventId;
-        option.textContent = `${event.eventId} (${new Date(event.date).toLocaleDateString()})`;
+        // Parse date as local date by appending time component
+        const localDate = new Date(event.date + 'T12:00:00');
+        option.textContent = `${event.eventId} (${localDate.toLocaleDateString()})`;
         select.appendChild(option);
     });
 
@@ -178,7 +180,8 @@ function renderPreview(eventData) {
     const flotilla = eventData.flotilla;
 
     // Render event details
-    const eventDate = new Date(event.date);
+    // Parse date as local date by appending time component
+    const eventDate = new Date(event.date + 'T12:00:00');
     eventDetails.innerHTML = `
         <strong>${event.eventId}</strong><br>
         ${eventDate.toLocaleDateString()} at ${event.startTime}
