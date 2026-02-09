@@ -1559,3 +1559,132 @@ nav .user-greeting {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
 }
+
+/* Event Report Styles (Screen View) */
+
+.report-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--deep-teal) 100%);
+  color: var(--white);
+  border-radius: 15px;
+}
+
+.report-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: var(--white);
+}
+
+.report-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.report-section {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.report-section h3 {
+  color: var(--purple);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.report-table thead {
+  background: var(--gradient-1);
+  color: var(--white);
+}
+
+.report-table thead th {
+  padding: 1.2rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.report-table tbody tr {
+  border-bottom: 1px solid var(--light-gray);
+  transition: background 0.2s ease;
+}
+
+.report-table tbody tr:hover {
+  background: var(--off-white);
+}
+
+.report-table tbody td {
+  padding: 1.2rem;
+  color: var(--dark);
+}
+
+.waitlist-group {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border-left: 5px solid #ff9800;
+}
+
+.waitlist-group h4 {
+  color: #e65100;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.waitlist-group ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.waitlist-group li {
+  padding: 0.25rem 0;
+  color: var(--dark);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.summary-item {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--off-white);
+  border-radius: 12px;
+  border: 2px solid var(--light-gray);
+}
+
+.summary-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--deep-teal);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.summary-label {
+  color: var(--text-gray);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.no-print {
+  /* Class to hide elements during print */
+}
