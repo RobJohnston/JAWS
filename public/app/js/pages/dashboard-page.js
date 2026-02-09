@@ -36,7 +36,6 @@ updateAuthenticatedNavigation(user, signOut);
 
 // Populate username in hero
 document.getElementById('hero-username').textContent = user.profile.firstName;
-document.getElementById('nav-username').textContent = user.profile.firstName;
 
 // Add admin link if user is admin
 addAdminLink(user);
