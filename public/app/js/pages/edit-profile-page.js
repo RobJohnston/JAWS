@@ -8,6 +8,7 @@ import { updateUser } from '../userService.js';
 import { hashPassword } from '../authService.js';
 import { validatePassword, getPasswordRequirementsHTML } from '../passwordValidator.js';
 import { showSuccess, showError } from '../toastService.js';
+import { addAdminLink } from '../navigationService.js';
 
 // Make signOut available globally for onclick handlers
 window.signOut = signOut;
@@ -25,6 +26,9 @@ if (!user) {
 
 // Populate username in nav
 document.getElementById('nav-username').textContent = user.profile.firstName;
+
+// Add admin link if user is admin
+addAdminLink(user);
 
 // Build form based on account type
 const formContent = document.getElementById('form-content');
