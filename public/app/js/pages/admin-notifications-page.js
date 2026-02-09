@@ -7,6 +7,7 @@ import { requireAuth, getCurrentUser, signOut } from '../authService.js';
 import { updateAuthenticatedNavigation, addAdminLink } from '../navigationService.js';
 import { initHamburgerMenu } from '../hamburger.js';
 import * as eventService from '../eventService.js';
+import * as apiService from '../apiService.js';
 import * as adminService from '../adminService.js';
 import { showToast } from '../toast.js';
 
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadEvents() {
     try {
-        allEvents = await eventService.getEvents();
+        allEvents = await eventService.getAllEvents();
         populateEventSelect();
     } catch (error) {
         console.error('Failed to load events:', error);
@@ -139,7 +140,7 @@ async function loadPreview(eventId) {
         previewBtn.disabled = true;
 
         // Fetch event with flotilla
-        currentEventData = await eventService.getEventById(eventId);
+        currentEventData = await apiService.getEventById(eventId);
 
         // Hide empty state
         emptyState.style.display = 'none';
@@ -172,18 +173,24 @@ function renderPreview(eventData) {
     previewSection.classList.remove('hidden');
     optionsSection.style.display = 'block';
 
+    // Extract event and flotilla data
+    const event = eventData.event;
+    const flotilla = eventData.flotilla;
+
     // Render event details
-    const eventDate = new Date(eventData.event_date);
+    const eventDate = new Date(event.date);
     eventDetails.innerHTML = `
-        <strong>${eventData.event_id}</strong><br>
-        ${eventDate.toLocaleDateString()} at ${eventData.start_time}
+        <strong>${event.eventId}</strong><br>
+        ${eventDate.toLocaleDateString()} at ${event.startTime}
     `;
 
     // Get participants from flotilla
     const participants = [];
-    if (eventData.flotilla && eventData.flotilla.assignments) {
-        eventData.flotilla.assignments.forEach(assignment => {
-            participants.push(`${assignment.boat_name} (${assignment.crew.length} crew)`);
+    if (flotilla && flotilla.crewedBoats) {
+        flotilla.crewedBoats.forEach(crewedBoat => {
+            const boatName = crewedBoat.displayName || crewedBoat.boatName || 'Unknown Boat';
+            const crewCount = crewedBoat.crews ? crewedBoat.crews.length : 0;
+            participants.push(`${boatName} (${crewCount} crew)`);
         });
     }
 

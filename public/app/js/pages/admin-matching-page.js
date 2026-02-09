@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadEvents() {
     try {
-        allEvents = await eventService.getEvents();
+        allEvents = await eventService.getAllEvents();
         populateEventSelect();
     } catch (error) {
         console.error('Failed to load events:', error);

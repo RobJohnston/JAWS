@@ -204,6 +204,18 @@ export async function getAllEvents() {
 }
 
 /**
+ * Get single event by ID with flotilla data
+ * @param {string} eventId - Event identifier
+ * @returns {Promise<Object>} Event object with flotilla data
+ */
+export async function getEventById(eventId) {
+    const url = API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.EVENT_BY_ID.replace(':id', eventId);
+    const response = await get(url);
+    // API returns { success: true, data: { event: {...}, flotilla: {...} } }
+    return response.data || null;
+}
+
+/**
  * Save events to API
  * @param {Array} events
  * @returns {Promise<Object>}
