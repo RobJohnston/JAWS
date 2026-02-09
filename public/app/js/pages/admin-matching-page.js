@@ -71,8 +71,8 @@ function populateEventSelect() {
     // Add event options
     allEvents.forEach(event => {
         const option = document.createElement('option');
-        option.value = event.event_id;
-        option.textContent = `${event.event_id} (${new Date(event.event_date).toLocaleDateString()})`;
+        option.value = event.eventId;
+        option.textContent = `${event.eventId} (${new Date(event.date).toLocaleDateString()})`;
         select.appendChild(option);
     });
 
