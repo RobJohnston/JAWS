@@ -187,22 +187,28 @@ function renderPreview(eventData) {
         ${eventDate.toLocaleDateString()} at ${event.startTime}
     `;
 
-    // Get participants from flotilla
-    const participants = [];
+    // Get boats and count actual email recipients
+    const boats = [];
+    let totalRecipients = 0;
+
     if (flotilla && flotilla.crewedBoats) {
         flotilla.crewedBoats.forEach(crewedBoat => {
             const boatName = crewedBoat.boat?.displayName || 'Unknown Boat';
             const crewCount = crewedBoat.crews ? crewedBoat.crews.length : 0;
-            participants.push(`${boatName} (${crewCount} crew)`);
+
+            // Count boat owner + all crew members
+            totalRecipients += 1 + crewCount;
+
+            boats.push(`${boatName} (1 boat owner + ${crewCount} crew = ${1 + crewCount} emails)`);
         });
     }
 
-    // Update participant count
-    participantCount.textContent = participants.length;
+    // Update participant count (total people receiving emails)
+    participantCount.textContent = totalRecipients;
 
-    // Render participant list
-    if (participants.length > 0) {
-        participantList.innerHTML = participants.map(p => `<li>${p}</li>`).join('');
+    // Render boat list
+    if (boats.length > 0) {
+        participantList.innerHTML = boats.map(b => `<li>${b}</li>`).join('');
     } else {
         participantList.innerHTML = '<li>No participants assigned yet</li>';
     }
@@ -217,7 +223,7 @@ function showConfirmationModal() {
     const participantCount = document.getElementById('participant-count');
 
     const count = parseInt(participantCount.textContent) || 0;
-    confirmMessage.textContent = `Are you sure you want to send notifications to ${count} participants?`;
+    confirmMessage.textContent = `Are you sure you want to send notifications to ${count} people (boat owners + crew)?`;
 
     modal.classList.remove('hidden');
 }
@@ -249,7 +255,7 @@ async function sendNotifications() {
         // Send notifications
         const result = await adminService.sendNotifications(eventId, includeCalendar);
 
-        showToast(`Successfully sent ${result.emails_sent || 0} notifications`, 'success');
+        showToast(`Successfully sent ${result.emails_sent || 0} email notifications`, 'success');
     } catch (error) {
         console.error('Failed to send notifications:', error);
         showToast(error.message || 'Failed to send notifications', 'error');
