@@ -158,9 +158,9 @@ function renderCapacitySummary(capacity) {
     // Update scenario badge
     scenarioBadge.className = `scenario-badge ${capacity.scenario}`;
     const scenarioText = {
-        'perfect': 'Perfect Match',
-        'few': 'Too Few Crews',
-        'many': 'Too Many Crews'
+        'perfect_fit': 'Perfect Match',
+        'too_few_crews': 'Too Few Crews',
+        'too_many_crews': 'Too Many Crews'
     };
     scenarioBadge.textContent = scenarioText[capacity.scenario] || capacity.scenario;
 }
@@ -194,9 +194,9 @@ function renderBoatsTable(boats) {
                     <tr>
                         <td><strong>${boat.display_name}</strong></td>
                         <td>${boat.berths}</td>
-                        <td>${boat.min_capacity}-${boat.max_capacity}</td>
+                        <td>${boat.min_berths}-${boat.max_berths}</td>
                         <td>
-                            ${boat.assistance_required ? '<span class="assistance-badge">Assistance Required</span>' : '—'}
+                            ${boat.requires_assistance ? '<span class="assistance-badge">Assistance Required</span>' : '—'}
                         </td>
                     </tr>
                 `).join('')}
@@ -245,12 +245,12 @@ function renderCrewsTable(crews) {
             </thead>
             <tbody>
                 ${crews.map(crew => {
-                    const skillClass = skillLevelText[crew.skill_level] || 'novice';
+                    const skillClass = skillLevelText[crew.skill] || 'novice';
                     return `
                         <tr>
-                            <td><strong>${crew.name}</strong></td>
+                            <td><strong>${crew.display_name}</strong></td>
                             <td><span class="skill-badge ${skillClass}">${skillClass}</span></td>
-                            <td>${availabilityText[crew.availability_status] || 'Unknown'}</td>
+                            <td>${availabilityText[crew.availability] || 'Unknown'}</td>
                         </tr>
                     `;
                 }).join('')}
