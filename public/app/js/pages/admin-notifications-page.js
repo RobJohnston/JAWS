@@ -191,7 +191,7 @@ function renderPreview(eventData) {
     const participants = [];
     if (flotilla && flotilla.crewedBoats) {
         flotilla.crewedBoats.forEach(crewedBoat => {
-            const boatName = crewedBoat.displayName || crewedBoat.boatName || 'Unknown Boat';
+            const boatName = crewedBoat.boat?.displayName || 'Unknown Boat';
             const crewCount = crewedBoat.crews ? crewedBoat.crews.length : 0;
             participants.push(`${boatName} (${crewCount} crew)`);
         });
