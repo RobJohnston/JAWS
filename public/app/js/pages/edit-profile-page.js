@@ -25,8 +25,8 @@ if (!user) {
     window.location.href = 'signin.html';
 }
 
-// Populate username in nav
-document.getElementById('nav-username').textContent = user.profile.firstName;
+// Update navigation with user info
+updateAuthenticatedNavigation(user);
 
 // Add admin link if user is admin
 addAdminLink(user);
