@@ -10,6 +10,7 @@ import { updateEventAvailability } from '../userService.js';
 import { get } from '../apiService.js';
 import { API_CONFIG } from '../config.js';
 import { showSuccess, showError, showInfo } from '../toastService.js';
+import { addAdminLink } from '../navigationService.js';
 
 // Require authentication
 if (!requireAuth()) {
@@ -32,6 +33,9 @@ updateAuthenticatedNavigation(user, signOut);
 
 // Populate username in hero
 document.getElementById('hero-username').textContent = user.profile.firstName;
+
+// Add admin link if user is admin
+addAdminLink(user);
 
 // Populate account badge
 const badge = document.getElementById('account-badge');

@@ -9,6 +9,7 @@ import { updateUser } from '../userService.js';
 import { hashPassword } from '../authService.js';
 import { validatePassword, getPasswordRequirementsHTML } from '../passwordValidator.js';
 import { showSuccess, showError } from '../toastService.js';
+import { addAdminLink } from '../navigationService.js';
 
 // Require authentication
 if (!requireAuth()) {
@@ -23,6 +24,9 @@ if (!user) {
 
 // Update navigation with user's name and attach sign-out handler
 updateAuthenticatedNavigation(user, signOut);
+
+// Add admin link if user is admin
+addAdminLink(user);
 
 // Build form based on account type
 const formContent = document.getElementById('form-content');
