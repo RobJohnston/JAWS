@@ -70,6 +70,7 @@ header {
   align-items: center;
 }
 
+/* Legacy text logo (kept for fallback) */
 .logo {
   font-size: 1.75rem;
   font-weight: 800;
@@ -79,6 +80,31 @@ header {
   background-clip: text;
   text-decoration: none;
   letter-spacing: -0.5px;
+}
+
+/* Image logo styles */
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.logo-link:hover {
+  opacity: 0.9;
+}
+
+.logo-img {
+  height: 50px;
+  width: auto;
+  /* CSS filter to shift green/blue logo colors toward teal theme */
+  /* Original: green (#00a651) + blue (#0066b3) → Target: teal (#00bcd4) */
+  filter: hue-rotate(15deg) saturate(1.1) brightness(1.05);
+  transition: filter 0.3s ease;
+}
+
+.logo-link:hover .logo-img {
+  filter: hue-rotate(15deg) saturate(1.2) brightness(1.1);
 }
 
 nav ul {
@@ -693,6 +719,11 @@ footer {
   /* Show hamburger on mobile */
   .hamburger {
     display: flex;
+  }
+
+  /* Smaller logo on mobile */
+  .logo-img {
+    height: 40px;
   }
 
   /* Hide nav by default, show as slide-in menu */
