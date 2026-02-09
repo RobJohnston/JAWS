@@ -33,12 +33,12 @@ class AdminController
     /**
      * Check if the current user is an admin
      *
+     * @param array $auth Authentication context from JWT middleware
      * @return bool
      */
-    private function isAdmin(): bool
+    private function isAdmin(array $auth): bool
     {
-        global $authContext;
-        return isset($authContext['is_admin']) && $authContext['is_admin'] === true;
+        return isset($auth['is_admin']) && $auth['is_admin'] === true;
     }
 
     /**
@@ -47,10 +47,11 @@ class AdminController
      * Returns matching data for an event (capacity analysis).
      *
      * @param array $params Route parameters
+     * @param array $auth Authentication context
      */
-    public function getMatchingData(array $params): JsonResponse
+    public function getMatchingData(array $params, array $auth): JsonResponse
     {
-        if (!$this->isAdmin()) {
+        if (!$this->isAdmin($auth)) {
             return JsonResponse::error('Admin privileges required', 403);
         }
 
@@ -73,10 +74,11 @@ class AdminController
      *
      * @param array $params Route parameters
      * @param array $body Request body
+     * @param array $auth Authentication context
      */
-    public function sendNotifications(array $params, array $body): JsonResponse
+    public function sendNotifications(array $params, array $body, array $auth): JsonResponse
     {
-        if (!$this->isAdmin()) {
+        if (!$this->isAdmin($auth)) {
             return JsonResponse::error('Admin privileges required', 403);
         }
 
@@ -98,10 +100,12 @@ class AdminController
      * GET /api/admin/config
      *
      * Returns current season configuration.
+     *
+     * @param array $auth Authentication context
      */
-    public function getConfig(): JsonResponse
+    public function getConfig(array $auth): JsonResponse
     {
-        if (!$this->isAdmin()) {
+        if (!$this->isAdmin($auth)) {
             return JsonResponse::error('Admin privileges required', 403);
         }
 
@@ -120,10 +124,11 @@ class AdminController
      * Updates season configuration.
      *
      * @param array $body Request body
+     * @param array $auth Authentication context
      */
-    public function updateConfig(array $body): JsonResponse
+    public function updateConfig(array $body, array $auth): JsonResponse
     {
-        if (!$this->isAdmin()) {
+        if (!$this->isAdmin($auth)) {
             return JsonResponse::error('Admin privileges required', 403);
         }
 
