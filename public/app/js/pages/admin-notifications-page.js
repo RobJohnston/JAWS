@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     requireAuth();
 
     // Get current user
-    const user = getCurrentUser();
+    const user = await getCurrentUser();
     if (!user) {
         window.location.href = 'signin.html';
         return;
