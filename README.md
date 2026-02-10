@@ -285,6 +285,64 @@ php -S localhost:8000 -t public &
 # Import tests/JAWS_API.postman_collection.json
 ```
 
+### E2E Testing with Playwright
+
+End-to-end tests verify the complete user journey through the browser, testing the frontend-backend integration.
+
+**Install Dependencies (first time only):**
+```bash
+# Install Node.js dependencies
+npm install
+
+# Install Playwright browsers (Chromium)
+npx playwright install chromium
+```
+
+**Run E2E Tests:**
+```bash
+# Run all tests (headless mode)
+npm run test:e2e
+
+# Run with browser visible (debugging)
+npm run test:e2e:headed
+
+# Interactive UI mode (best for development)
+npm run test:e2e:ui
+
+# Run specific test file
+npx playwright test registration-crew.spec.ts
+
+# Debug mode (step through tests)
+npm run test:e2e:debug
+```
+
+**View Test Results:**
+```bash
+# Generate and open HTML report
+npm run test:e2e:report
+
+# Report will open in your browser showing:
+# - Test execution summary (passed/failed)
+# - Screenshots on failure
+# - Step-by-step test traces
+# - Network requests and responses
+```
+
+**Test Coverage:**
+
+- ✅ Crew member registration (happy path)
+- ✅ Boat owner registration (happy path)
+- 🔜 Sign-in flow
+- 🔜 Availability updates
+- 🔜 Error handling scenarios
+
+**Notes:**
+
+- Playwright automatically starts the PHP dev server on `localhost:8000`
+- Tests use unique email addresses (`@example.com`) for isolation
+- Database is automatically cleaned before/after each test
+- Tests run sequentially to avoid database conflicts
+
 ## Quick Links
 
 **For New Users:**

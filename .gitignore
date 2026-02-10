@@ -55,3 +55,9 @@ database/assignment_debug.txt
 # Build artifacts
 /build/
 /dist/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+playwright-results.xml
