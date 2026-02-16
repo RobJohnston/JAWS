@@ -233,6 +233,7 @@ Presentation → Infrastructure → Application → Domain
 - **Entities** (`Entity/`)
   - `Boat.php` - Boat entity with capacity, owner info, ranking, history, availability
   - `Crew.php` - Crew member entity with skills, preferences, whitelist, ranking
+  - `User.php` - User entity with authentication credentials, profile links
 
 - **Value Objects** (`ValueObject/`)
   - `BoatKey.php` - Immutable boat identifier
@@ -241,7 +242,8 @@ Presentation → Infrastructure → Application → Domain
   - `Rank.php` - Multi-dimensional rank tensor (lexicographic comparison)
 
 - **Enums** (`Enum/`)
-  - `RankDimension.php` - Boat/crew ranking dimensions
+  - `BoatRankDimension.php` - Boat ranking dimensions (flexibility, absence)
+  - `CrewRankDimension.php` - Crew ranking dimensions (commitment, flexibility, membership, absence)
   - `AvailabilityStatus.php` - UNAVAILABLE (0), AVAILABLE (1), GUARANTEED (2), WITHDRAWN (3)
   - `SkillLevel.php` - NOVICE (0), INTERMEDIATE (1), ADVANCED (2)
   - `AssignmentRule.php` - 6 optimization rules (ASSIST, WHITELIST, HIGH_SKILL, LOW_SKILL, PARTNER, REPEAT)
@@ -254,7 +256,7 @@ Presentation → Infrastructure → Application → Domain
 - **Domain Services** (`Service/`) - **CRITICAL ALGORITHMS PRESERVED**
   - `SelectionService.php` - Ranking & boat/crew selection algorithm (CRC32 seeding, lexicographic sort)
   - `AssignmentService.php` - Crew-to-boat optimization via constraint-based swapping
-  - `RankingService.php` - Multi-dimensional rank calculations
+  - `RankingService.php` - Multi-dimensional rank calculations for boats and crews
   - `FlexService.php` - Flex status detection (boat owners as crew, crew owning boats)
 
 ### Layer 2: Application (`src/Application/`)
@@ -266,15 +268,25 @@ Presentation → Infrastructure → Application → Domain
 **Contents:**
 
 - **Use Cases** (`UseCase/`)
+  - `Auth/LoginUseCase.php` - User authentication
+  - `Auth/RegisterUseCase.php` - User registration
+  - `Auth/GetSessionUseCase.php` - Get current user session
+  - `Auth/LogoutUseCase.php` - User logout
+  - `User/GetUserProfileUseCase.php` - Get user profile (boat/crew info)
+  - `User/AddProfileUseCase.php` - Add boat or crew profile
+  - `User/UpdateUserProfileUseCase.php` - Update user profile
   - `Boat/UpdateBoatAvailabilityUseCase.php` - Update boat berths for events
   - `Crew/UpdateCrewAvailabilityUseCase.php` - Update crew availability
+  - `Crew/GetCrewAvailabilityUseCase.php` - Get crew availability for events
   - `Crew/GetUserAssignmentsUseCase.php` - Get user's assignments across all events
   - `Event/GetAllEventsUseCase.php` - List all events
   - `Event/GetEventUseCase.php` - Get event with flotilla
+  - `Flotilla/GetAllFlotillasUseCase.php` - Get all flotillas
   - `Season/ProcessSeasonUpdateUseCase.php` - **CRITICAL**: Main orchestration pipeline (replaces season_update.php)
   - `Season/GenerateFlotillaUseCase.php` - Generate flotilla for an event
   - `Season/UpdateConfigUseCase.php` - Update season configuration
   - `Admin/GetMatchingDataUseCase.php` - Get matching data for event
+  - `Admin/GetConfigUseCase.php` - Get season configuration
   - `Admin/SendNotificationsUseCase.php` - Send email notifications
 
 - **Ports (Interfaces)** (`Port/`)
@@ -282,23 +294,42 @@ Presentation → Infrastructure → Application → Domain
   - `Repository/CrewRepositoryInterface.php` - How to persist crew
   - `Repository/EventRepositoryInterface.php` - How to query events
   - `Repository/SeasonRepositoryInterface.php` - How to manage season config/flotillas
+  - `Repository/UserRepositoryInterface.php` - How to persist users
   - `Service/EmailServiceInterface.php` - How to send emails
   - `Service/CalendarServiceInterface.php` - How to generate iCal files
   - `Service/TimeServiceInterface.php` - How to get current time
+  - `Service/TokenServiceInterface.php` - How to generate/validate JWT tokens
+  - `Service/PasswordServiceInterface.php` - How to hash/verify passwords
+  - `Service/EmailTemplateServiceInterface.php` - How to render email templates
 
 - **DTOs** (`DTO/`)
+  - `Request/LoginRequest.php` - User login credentials
+  - `Request/RegisterRequest.php` - User registration data
+  - `Request/AddProfileRequest.php` - Add boat or crew profile
+  - `Request/UpdateProfileRequest.php` - Update profile data
   - `Request/UpdateAvailabilityRequest.php` - Availability updates
   - `Request/UpdateConfigRequest.php` - Season config updates
+  - `Response/AuthResponse.php` - Authentication token and user info
+  - `Response/UserResponse.php` - User account details
+  - `Response/ProfileResponse.php` - User profile (boat/crew)
   - `Response/BoatResponse.php` - Serialized boat
   - `Response/CrewResponse.php` - Serialized crew
   - `Response/EventResponse.php` - Serialized event
   - `Response/FlotillaResponse.php` - Flotilla assignment
   - `Response/AssignmentResponse.php` - Crew-to-boat assignment
+  - `Response/AvailabilityResponse.php` - Availability status
 
 - **Exceptions** (`Exception/`)
   - `BoatNotFoundException.php` - Boat not found
   - `CrewNotFoundException.php` - Crew not found
   - `EventNotFoundException.php` - Event not found
+  - `FlotillaNotFoundException.php` - Flotilla not found
+  - `UserNotFoundException.php` - User not found
+  - `UserAlreadyExistsException.php` - Email already registered
+  - `InvalidCredentialsException.php` - Login failed
+  - `InvalidTokenException.php` - JWT token invalid/expired
+  - `UnauthorizedException.php` - Insufficient permissions
+  - `WeakPasswordException.php` - Password doesn't meet requirements
   - `ValidationException.php` - Field-level validation errors
   - `BlackoutWindowException.php` - Registration blocked during event
 
@@ -316,11 +347,16 @@ Presentation → Infrastructure → Application → Domain
   - `CrewRepository.php` - Implements `CrewRepositoryInterface` (full CRUD with whitelist management)
   - `EventRepository.php` - Implements `EventRepositoryInterface` (time-based event queries)
   - `SeasonRepository.php` - Implements `SeasonRepositoryInterface` (config & flotilla JSON storage)
+  - `UserRepository.php` - Implements `UserRepositoryInterface` (user authentication & profile)
 
 - **Service Adapters** (`Service/`)
   - `PhpMailerEmailService.php` - Implements `EmailServiceInterface` using PHPMailer with SMTP
+  - `AwsSesEmailService.php` - Implements `EmailServiceInterface` using AWS SES
+  - `EmailTemplateService.php` - Implements `EmailTemplateServiceInterface` for email rendering
   - `ICalendarService.php` - Implements `CalendarServiceInterface` using eluceo/ical
   - `SystemTimeService.php` - Implements `TimeServiceInterface` (production/simulated time)
+  - `JwtTokenService.php` - Implements `TokenServiceInterface` using Firebase JWT
+  - `PhpPasswordService.php` - Implements `PasswordServiceInterface` using PHP password_hash
 
 ### Layer 4: Presentation (`src/Presentation/`)
 
@@ -331,7 +367,9 @@ Presentation → Infrastructure → Application → Domain
 **Contents:**
 
 - **Controllers** (`Controller/`)
-  - `EventController.php` - GET /api/events, GET /api/events/{id}
+  - `AuthController.php` - POST /api/auth/login, POST /api/auth/register, POST /api/auth/logout, GET /api/auth/session
+  - `UserController.php` - GET/POST/PATCH /api/users/me (user profile management)
+  - `EventController.php` - GET /api/events, GET /api/events/{id}, GET /api/flotillas
   - `AvailabilityController.php` - Boat/crew registration & availability updates
   - `AssignmentController.php` - GET /api/assignments (user's assignments)
   - `AdminController.php` - Admin endpoints (matching data, notifications, config)
@@ -482,12 +520,48 @@ Rankings are compared lexicographically during bubble sort. **Lower rank = highe
 - Returns specific event with flotilla assignments
 - Controller: `EventController::getOne($eventId)`
 
+**GET /api/flotillas**
+- Returns all flotillas for the season
+- Controller: `EventController::getAllFlotillas()`
+
+**POST /api/auth/register**
+- Register new user account
+- Controller: `AuthController::register()`
+
+**POST /api/auth/login**
+- Authenticate user and receive JWT token
+- Controller: `AuthController::login()`
+
 ### Authenticated Endpoints (JWT)
 
 **Headers Required:**
 ```
 Authorization: Bearer {jwt_token}
 ```
+
+**GET /api/auth/session**
+- Get current authenticated user session
+- Controller: `AuthController::getSession()`
+
+**POST /api/auth/logout**
+- Logout current user
+- Controller: `AuthController::logout()`
+
+**GET /api/users/me**
+- Get user profile (boat and/or crew information)
+- Controller: `UserController::getProfile()`
+
+**POST /api/users/me**
+- Add boat or crew profile to user account
+- Controller: `UserController::addProfile()`
+
+**PATCH /api/users/me**
+- Update user profile information
+- Controller: `UserController::updateProfile()`
+
+**GET /api/users/me/availability**
+- Get crew availability for all events
+- Controller: `AvailabilityController::getCrewAvailability()`
 
 **PATCH /api/users/me/availability**
 - Update availability for authenticated user
@@ -506,6 +580,14 @@ Authorization: Bearer {jwt_token}
 
 ### Admin Endpoints (Authenticated)
 
+**GET /api/admin/config**
+- Get season configuration
+- Controller: `AdminController::getConfig()`
+
+**PATCH /api/admin/config**
+- Update season configuration (dates, times, blackout windows)
+- Controller: `AdminController::updateConfig()`
+
 **GET /api/admin/matching/{eventId}**
 - Get matching data for event (available boats/crews, capacity analysis)
 - Controller: `AdminController::getMatchingData($eventId)`
@@ -513,10 +595,6 @@ Authorization: Bearer {jwt_token}
 **POST /api/admin/notifications/{eventId}**
 - Send email notifications for event
 - Controller: `AdminController::sendNotifications($eventId)`
-
-**PATCH /api/admin/config**
-- Update season configuration (dates, times, blackout windows)
-- Controller: `AdminController::updateConfig()`
 
 ## Important Architectural Concepts
 
@@ -688,11 +766,12 @@ class MyIntegrationTest extends IntegrationTestCase
     "php": "^8.1",
     "phpmailer/phpmailer": "^7.0",
     "eluceo/ical": "^2.13",
+    "vlucas/phpdotenv": "^5.6",
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^10.0",
+    "phpunit/phpunit": "^10.5",
     "robmorgan/phinx": "^0.16"
   }
 }
@@ -722,7 +801,7 @@ class MyIntegrationTest extends IntegrationTestCase
 
 ### Adding New Ranking Criteria
 
-1. Add constant to `src/Domain/Enum/RankDimension.php`
+1. Add constant to `src/Domain/Enum/BoatRankDimension.php` or `src/Domain/Enum/CrewRankDimension.php`
 2. Update `Boat` or `Crew` entity constructor (adjust rank array size)
 3. Implement calculation logic in `RankingService.php`
 4. Update `SelectionService::is_greater()` if comparison logic changes
@@ -896,6 +975,7 @@ Implementation in `src/Infrastructure/Persistence/SQLite/BoatRepository.php`
 **Domain Layer (Pure Business Logic):**
 - `src/Domain/Entity/Boat.php`
 - `src/Domain/Entity/Crew.php`
+- `src/Domain/Entity/User.php`
 - `src/Domain/Service/SelectionService.php` ⚠️ CRITICAL ALGORITHM
 - `src/Domain/Service/AssignmentService.php` ⚠️ CRITICAL ALGORITHM
 - `src/Domain/Service/RankingService.php`
@@ -905,22 +985,31 @@ Implementation in `src/Infrastructure/Persistence/SQLite/BoatRepository.php`
 - `src/Application/UseCase/Season/ProcessSeasonUpdateUseCase.php` ⚠️ MAIN ORCHESTRATOR
 - `src/Application/Port/Repository/BoatRepositoryInterface.php`
 - `src/Application/Port/Repository/CrewRepositoryInterface.php`
+- `src/Application/Port/Repository/UserRepositoryInterface.php`
 
 **Infrastructure Layer (Database & External Services):**
 - `src/Infrastructure/Persistence/SQLite/Connection.php`
 - `src/Infrastructure/Persistence/SQLite/BoatRepository.php`
 - `src/Infrastructure/Persistence/SQLite/CrewRepository.php`
+- `src/Infrastructure/Persistence/SQLite/UserRepository.php`
 - `src/Infrastructure/Service/PhpMailerEmailService.php`
+- `src/Infrastructure/Service/AwsSesEmailService.php`
+- `src/Infrastructure/Service/EmailTemplateService.php`
 - `src/Infrastructure/Service/ICalendarService.php`
 - `src/Infrastructure/Service/SystemTimeService.php`
+- `src/Infrastructure/Service/JwtTokenService.php`
+- `src/Infrastructure/Service/PhpPasswordService.php`
 
 **Presentation Layer (HTTP/API):**
+- `src/Presentation/Controller/AuthController.php`
+- `src/Presentation/Controller/UserController.php`
 - `src/Presentation/Controller/EventController.php`
 - `src/Presentation/Controller/AvailabilityController.php`
 - `src/Presentation/Controller/AssignmentController.php`
 - `src/Presentation/Controller/AdminController.php`
-- `src/Presentation/Middleware/NameAuthMiddleware.php`
+- `src/Presentation/Middleware/JwtAuthMiddleware.php`
 - `src/Presentation/Middleware/ErrorHandlerMiddleware.php`
+- `src/Presentation/Middleware/CorsMiddleware.php`
 
 **Database:**
 - `database/jaws.db` - SQLite database
@@ -992,11 +1081,14 @@ Implementation in `src/Infrastructure/Persistence/SQLite/BoatRepository.php`
 
 **Phase 10: CI/CD Pipeline** ✅
 - Set up GitHub Actions workflow (`.github/workflows/ci.yml`)
-- Configured 5 parallel jobs (build, unit tests, integration tests, API tests, database setup)
-- Automated PHPUnit test execution
+- Smart test execution strategy:
+  - **On push:** Unit tests only (fast feedback, no database required)
+  - **On pull request:** Full test suite (unit, integration, API tests with database)
+- Parallel job execution: build, unit tests, database setup, integration tests, API tests
+- Automated PHPUnit test execution with proper test isolation
 - Database seeding with Phinx for integration tests
 - Artifact caching for faster builds
-- Runs on all branches and pull requests
+- Runs on all branches (unit tests) and pull requests (full suite)
 
 ## Potential Future Enhancements
 
