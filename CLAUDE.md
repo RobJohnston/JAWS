@@ -598,79 +598,18 @@ During event days (10:00-18:00 by default), registration is blocked to prevent m
 
 ## Testing
 
-Test cases are documented in `/tests/Test cases.numbers` (Apple Numbers spreadsheet). Automated tests use PHPUnit.
-
 **Test Structure:**
-- `tests/Unit/` - Unit tests (Domain layer, no external dependencies)
-- `tests/Integration/` - Integration tests (Infrastructure layer, in-memory SQLite)
-  - **Base Class:** `IntegrationTestCase` - Extends PHPUnit TestCase with Phinx migration support
-  - All integration tests extend this base class for automatic schema setup
-- `tests/Integration/Api/` - API tests (PHPUnit test suite)
-  - `EventApiTest.php` - Event endpoint tests
-  - `AuthApiTest.php` - Authentication endpoint tests
-  - `UserProfileApiTest.php` - User profile endpoint tests
-  - `AvailabilityApiTest.php` - Availability endpoint tests
-  - `AssignmentApiTest.php` - Assignment endpoint tests
-  - `AdminApiTest.php` - Admin endpoint tests
-- `tests/JAWS_API.postman_collection.json` - Postman test collection
+- `tests/Unit/` - Domain layer unit tests (no database)
+- `tests/Integration/` - Infrastructure integration tests (in-memory SQLite with Phinx migrations)
+  - Base class: `IntegrationTestCase` provides automatic schema setup
+- `tests/Integration/Api/` - API endpoint tests (requires dev server)
 
-**Running Tests:**
-```bash
-# All tests
-./vendor/bin/phpunit
-
-# Unit tests only
-./vendor/bin/phpunit tests/Unit
-
-# Integration tests only
-./vendor/bin/phpunit tests/Integration
-
-# Specific test
-./vendor/bin/phpunit tests/Unit/Domain/SelectionServiceTest.php
-```
-
-**Writing Tests:**
-
-**Unit Test Example (Domain):**
-```php
-// Test business logic without database
-$selectionService = new SelectionService();
-$boats = [new Boat(...), new Boat(...)];
-$result = $selectionService->shuffle($boats, new EventId('Fri May 29'));
-$this->assertEquals($expected, $result);
-```
-
-**Integration Test Example (Infrastructure):**
-```php
-use Tests\Integration\IntegrationTestCase;
-
-class MyIntegrationTest extends IntegrationTestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();  // Runs all Phinx migrations + initializes season config
-
-        // Your test-specific setup
-        $this->repository = new BoatRepository();
-    }
-
-    public function testRepositorySave(): void
-    {
-        // $this->pdo is available (in-memory SQLite)
-        // All tables exist with latest schema from Phinx migrations
-        $boat = new Boat(...);
-        $this->repository->save($boat);
-        $found = $this->repository->findByKey($boat->getKey());
-        $this->assertEquals($boat, $found);
-    }
-}
-```
-
-**Database Setup:**
-- Integration tests use Phinx migrations (NOT SQL fixtures)
-- Schema is always up-to-date with `database/migrations/*.php`
-- `tests/fixtures/*.sql` are archived (deprecated, see `tests/fixtures/ARCHIVED_README.md`)
+**Key Points:**
+- Integration tests extend `IntegrationTestCase` for automatic Phinx migration setup
+- Schema always matches `database/migrations/*.php`
 - Base class provides utilities: `createTestEvent()`, `createTestUser()`
+
+**For detailed testing workflows, see the `/test` skill.**
 
 ## Dependencies
 
@@ -742,113 +681,27 @@ $isBlackout = $timeService->isInBlackoutWindow($now);
 ## Common Patterns
 
 ### Dependency Injection
+All dependencies wired in `config/container.php` using constructor injection.
 
-All dependencies are wired in `config/container.php`:
+### Repository Pattern
+- Repositories handle all database interactions
+- Interfaces defined in Application layer (`Port/Repository/`)
+- Implementations in Infrastructure layer (`Persistence/SQLite/`)
+- Methods: `save()`, `findByKey()`, `findAll()`, `findAvailableForEvent()`
 
-```php
-$container = new Container();
-
-// Repositories
-$container->set(BoatRepositoryInterface::class, fn() => new BoatRepository());
-
-// Services
-$container->set(TimeServiceInterface::class, fn() => new SystemTimeService($config));
-
-// Use Cases
-$container->set(UpdateBoatAvailabilityUseCase::class, fn() => new UpdateBoatAvailabilityUseCase(
-    $container->get(BoatRepositoryInterface::class)
-));
-```
-
-### Loading and Saving Entities
-
-```php
-// Inject repository via constructor
-class UpdateBoatAvailabilityUseCase {
-    public function __construct(
-        private BoatRepositoryInterface $boatRepository
-    ) {}
-
-    public function execute(string $ownerFirstName, string $ownerLastName, UpdateAvailabilityRequest $request): BoatResponse {
-        // Find existing boat by owner name
-        $boat = $this->boatRepository->findByOwnerName($ownerFirstName, $ownerLastName);
-
-        // Update boat availabilities
-        foreach ($request->availabilities as $eventId => $berths) {
-            $this->boatRepository->setAvailability($boat->getKey(), new EventId($eventId), $berths);
-        }
-
-        return BoatResponse::fromEntity($boat);
-    }
-}
-```
-
-### Accessing Entities
-
-```php
-// Find by key
-$boat = $boatRepository->findByKey(new BoatKey('sailaway'));
-$crew = $crewRepository->findByName('John', 'Doe');
-
-// Find by availability
-$availableBoats = $boatRepository->findAvailableForEvent(new EventId('Fri May 29'));
-$availableCrews = $crewRepository->findAvailableForEvent(new EventId('Fri May 29'));
-```
-
-### Working with Events
-
-```php
-// Load events
-$allEvents = $eventRepository->findAll();
-$futureEvents = $eventRepository->findFutureEvents($currentTime);
-$nextEvent = $eventRepository->findNextEvent($currentTime);
-
-// Process events
-foreach ($futureEvents as $event) {
-    $flotilla = $seasonRepository->getFlotilla($event->getEventId());
-    // Process flotilla...
-}
-```
+### Entity Access
+- Use Value Objects for identifiers: `BoatKey`, `CrewKey`, `EventId`
+- Find by key: `$repository->findByKey(new BoatKey('sailaway'))`
+- Find by criteria: `$repository->findAvailableForEvent($eventId)`
 
 ### Error Handling
-
-Exceptions are automatically mapped to HTTP status codes by `ErrorHandlerMiddleware`:
-
-- `BoatNotFoundException` → 404
-- `CrewNotFoundException` → 404
-- `EventNotFoundException` → 404
+Exceptions auto-map to HTTP status codes via `ErrorHandlerMiddleware`:
+- `*NotFoundException` → 404
 - `ValidationException` → 400
 - `BlackoutWindowException` → 403
 - Generic exceptions → 500
 
-**Example:**
-```php
-public function execute(UpdateAvailabilityRequest $request): void {
-    if (empty($request->availabilities)) {
-        throw new ValidationException('Availabilities are required');
-    }
-    // ...
-}
-```
-
-### Repository Pattern
-
-Repositories handle all database interactions:
-
-```php
-interface BoatRepositoryInterface {
-    public function save(Boat $boat): void;
-    public function findByKey(BoatKey $key): ?Boat;
-    public function findAll(): array;
-    public function findAvailableForEvent(EventId $eventId): array;
-    public function setAvailability(BoatKey $key, EventId $eventId, int $berths): void;
-    public function getAvailability(BoatKey $key, EventId $eventId): int;
-    public function setHistory(BoatKey $key, EventId $eventId, bool $participated): void;
-    public function getHistory(BoatKey $key, EventId $eventId): bool;
-}
-```
-
-Implementation in `src/Infrastructure/Persistence/SQLite/BoatRepository.php`
+**For code examples and detailed patterns, see skills: `/add-endpoint`, `/modify-schema`**
 
 ## File Paths Reference
 
