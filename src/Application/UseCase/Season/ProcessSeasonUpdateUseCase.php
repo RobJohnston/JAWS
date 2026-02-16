@@ -15,6 +15,7 @@ use App\Domain\Entity\Crew;
 use App\Domain\Service\SelectionService;
 use App\Domain\Service\AssignmentService;
 use App\Domain\Service\FlexService;
+use App\Domain\Service\RankingService;
 use App\Domain\ValueObject\EventId;
 use App\Domain\Enum\AvailabilityStatus;
 
@@ -45,6 +46,7 @@ class ProcessSeasonUpdateUseCase
         private SelectionService $selectionService,
         private AssignmentService $assignmentService,
         private FlexService $flexService,
+        private RankingService $rankingService,
     ) {
     }
 
@@ -60,13 +62,15 @@ class ProcessSeasonUpdateUseCase
         $squad = $this->loadSquad();
         $futureEvents = $this->eventRepository->findFutureEvents();
         $nextEventId = $this->eventRepository->findNextEvent();
+        $pastEvents = $this->eventRepository->findPastEvents();
 
-        // Recalculate flexibility ranks based on current fleet/squad composition
-        // This ensures flex status is accurate before selection runs
-        $this->flexService->updateAllFlexRanks($fleet, $squad);
-
-        // Persist updated flexibility ranks to database
-        $this->persistFlexRanks($fleet, $squad);
+        // Recalculate ALL rank dimensions before selection runs
+        // This ensures ranks accurately reflect current state:
+        // - Flexibility: based on fleet/squad composition (flex users)
+        // - Absence: based on past no-shows
+        // - Commitment: based on availability for next event
+        // - Membership: based on current membership number
+        $this->updateAllRanks($fleet, $squad, $pastEvents, $nextEventId);
 
         $eventsProcessed = 0;
         $flotillasGenerated = 0;
@@ -341,30 +345,44 @@ class ProcessSeasonUpdateUseCase
     }
 
     /**
-     * Persist updated flexibility ranks to database (ONLY rank_flexibility column)
+     * Update and persist all rank dimensions for boats and crews
      *
-     * After FlexService updates flexibility ranks in memory based on current
-     * fleet/squad composition, save the rank_flexibility values to database.
-     * Uses targeted updateRankFlexibility() methods to update only the
-     * rank_flexibility column, avoiding side effects from full entity saves
-     * which would also update availability and history.
+     * Recalculates all rank dimensions in memory, then persists them to database
+     * in a single UPDATE query per entity for maximum efficiency.
      *
-     * Note: Currently updates ALL boats/crews. Future optimization could track
-     * which ranks actually changed and only persist those.
+     * Rank dimensions updated:
+     * - Boats: flexibility (flex status), absence (past no-shows)
+     * - Crews: commitment (next event availability), flexibility (flex status),
+     *          membership (membership number), absence (past no-shows)
      *
-     * @param Fleet $fleet Fleet with updated boat flexibility ranks
-     * @param Squad $squad Squad with updated crew flexibility ranks
+     * @param Fleet $fleet
+     * @param Squad $squad
+     * @param array<string> $pastEvents Past event IDs for absence calculation
+     * @param string|null $nextEventId Next event ID for commitment calculation
      */
-    private function persistFlexRanks(Fleet $fleet, Squad $squad): void
+    private function updateAllRanks(Fleet $fleet, Squad $squad, array $pastEvents, ?string $nextEventId): void
     {
-        // Update only boat rank_flexibility column directly
-        foreach ($fleet->all() as $boat) {
-            $this->boatRepository->updateRankFlexibility($boat);
+        // Update flexibility ranks (must be done first as it affects fleet/squad composition)
+        $this->flexService->updateAllFlexRanks($fleet, $squad);
+
+        // Update absence ranks based on past no-shows
+        $this->rankingService->updateBoatAbsenceRanks($fleet->all(), $pastEvents);
+        $this->rankingService->updateCrewAbsenceRanks($squad->all(), $pastEvents);
+
+        // Update commitment ranks based on next event availability (crews only)
+        if ($nextEventId !== null) {
+            $this->rankingService->updateCrewCommitmentRanks($squad->all(), EventId::fromString($nextEventId));
         }
 
-        // Update only crew rank_flexibility column directly
+        // Note: Membership rank is calculated from membership_number field during entity
+        // creation/update, so no need to recalculate here unless membership_number changed
+
+        // Persist all updated ranks to database (one UPDATE per entity)
+        foreach ($fleet->all() as $boat) {
+            $this->boatRepository->updateAllRanks($boat);
+        }
         foreach ($squad->all() as $crew) {
-            $this->crewRepository->updateRankFlexibility($crew);
+            $this->crewRepository->updateAllRanks($crew);
         }
     }
 }

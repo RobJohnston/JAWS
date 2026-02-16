@@ -137,6 +137,17 @@ interface CrewRepositoryInterface
     public function updateRankFlexibility(Crew $crew): void;
 
     /**
+     * Update all crew rank dimensions (commitment, flexibility, membership, absence)
+     *
+     * More efficient than updateRankFlexibility when multiple rank dimensions
+     * need to be updated. Updates all rank columns in a single query.
+     *
+     * @param Crew $crew Crew with updated ranks
+     * @return void
+     */
+    public function updateAllRanks(Crew $crew): void;
+
+    /**
      * Get crew count
      *
      * @return int

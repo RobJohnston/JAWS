@@ -109,6 +109,17 @@ interface BoatRepositoryInterface
     public function updateRankFlexibility(Boat $boat): void;
 
     /**
+     * Update all boat rank dimensions (flexibility, absence)
+     *
+     * More efficient than updateRankFlexibility when multiple rank dimensions
+     * need to be updated. Updates all rank columns in a single query.
+     *
+     * @param Boat $boat Boat with updated ranks
+     * @return void
+     */
+    public function updateAllRanks(Boat $boat): void;
+
+    /**
      * Get boat count
      *
      * @return int
