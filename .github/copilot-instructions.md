@@ -46,23 +46,33 @@ curl http://localhost:8000/api/events  # Test
 
 ### 5. Run Tests
 
+**Unit tests** (Domain layer only - no DB needed, ~8s):
 ```bash
-# Unit tests (fast, no DB needed)
-vendor/bin/phpunit tests/Unit         # 346+ tests, ~8s
+vendor/bin/phpunit tests/Unit                    # All unit tests (346+)
+vendor/bin/phpunit tests/Unit/Domain             # Business logic only
+vendor/bin/phpunit tests/Unit/Domain/SelectionServiceTest.php  # Single file
+```
 
-# Integration tests (require DB)
+**Integration tests** (Infrastructure layer - requires database):
+```bash
 vendor/bin/phpunit --testsuite=Integration
+```
 
-# API tests (require DB and running server)
+**API tests** (HTTP endpoints - requires running server):
+```bash
 php -S localhost:8000 -t public > /dev/null 2>&1 & SERVER_PID=$!; sleep 2
 vendor/bin/phpunit --testsuite=API
 kill $SERVER_PID
+```
 
-# All tests
-vendor/bin/phpunit                    # Runs all test suites
+**All tests**:
+```bash
+vendor/bin/phpunit                    # Full test suite
+```
 
-# Specific test file
-vendor/bin/phpunit tests/Unit/Domain/SelectionServiceTest.php
+**With verbose output**:
+```bash
+vendor/bin/phpunit --verbose
 ```
 
 **NEVER** run tests before `phinx migrate` - integration/API tests need the schema.
@@ -98,7 +108,7 @@ public/                  # Web root (index.php, frontend app/)
 
 ### Key Files
 
-**Config**: `composer.json`, `phinx.php`, `.env`, `config/{routes,container}.php`  
+**Config**: `composer.json`, `phinx.php`, `.env`, `config/{routes,container}.php`
 **Critical (preserve)**: `src/Domain/Service/{Selection,Assignment}Service.php`, `src/Application/UseCase/Season/ProcessSeasonUpdateUseCase.php`
 
 ## CI/CD Pipeline
@@ -112,21 +122,21 @@ public/                  # Web root (index.php, frontend app/)
 
 ## Environment Requirements
 
-**Required extensions**: pdo, pdo_sqlite, sqlite3, curl, mbstring, openssl  
+**Required extensions**: pdo, pdo_sqlite, sqlite3, curl, mbstring, openssl
 **Optional**: Xdebug, LocalStack (for AWS SES testing: `cd LocalStack && docker-compose up -d`)
 
 ## Common Issues & Solutions
 
-**Composer install fails (PHP < 8.4)**: Use `composer install --ignore-platform-reqs` - lock file requires PHP 8.4+  
-**DB permission errors**: `chmod 775 database && chmod 664 database/jaws.db`  
-**JWT 401 errors**: Verify `.env` has JWT_SECRET (min 32 chars)  
-**Migration "already exists"**: Check `vendor/bin/phinx status`, rollback if needed  
-**Port in use**: `lsof -ti:8000 | xargs kill -9` or use different port  
+**Composer install fails (PHP < 8.4)**: Use `composer install --ignore-platform-reqs` - lock file requires PHP 8.4+
+**DB permission errors**: `chmod 775 database && chmod 664 database/jaws.db`
+**JWT 401 errors**: Verify `.env` has JWT_SECRET (min 32 chars)
+**Migration "already exists"**: Check `vendor/bin/phinx status`, rollback if needed
+**Port in use**: `lsof -ti:8000 | xargs kill -9` or use different port
 **Local test failures**: `rm database/jaws.db && vendor/bin/phinx migrate && rm -rf .phpunit.cache`
 
 ## Architecture Rules
 
-**Layer boundaries**: Domain (no imports) ← Application ← Infrastructure, Presentation → Application only  
+**Layer boundaries**: Domain (no imports) ← Application ← Infrastructure, Presentation → Application only
 **Wrong**: Domain importing PDO/repositories. **Right**: Application ports, Infrastructure implements.
 
 **Critical algorithms**: DO NOT modify core logic in Selection/AssignmentService. Add features around them. ALWAYS run `tests/Unit/Domain/SelectionServiceTest.php` after changes. Verify deterministic output.
@@ -151,6 +161,21 @@ public/                  # Web root (index.php, frontend app/)
 5. Code follows PSR-12 (4 spaces, strict types, type hints)
 
 Update docs if needed: `README.md`, `CLAUDE.md`, `docs/{DEVELOPER_GUIDE,API,CONTRIBUTING}.md`
+
+## Interactive Development Skills
+
+Common development workflows are available as interactive step-by-step guides in `.claude/skills/`:
+
+- **test** - Run PHPUnit tests with appropriate commands
+- **add-endpoint** - Add new REST API endpoints
+- **modify-schema** - Modify database schema with migrations
+- **conventional-commits** - Create properly formatted commit messages
+- **database-ops** - Database operations (backup, restore, query)
+- **deploy-lightsail** - Deploy to AWS Lightsail production
+- **add-ranking** - Add ranking criteria to selection algorithm
+- **add-rule** - Add optimization rules to assignment algorithm
+
+See `.claude/skills/README.md` for complete list and descriptions. Use skills for procedural "how-to" tasks.
 
 ## Quick Reference Commands
 
@@ -208,7 +233,7 @@ For detailed information, see:
 - **docs/DEVELOPER_GUIDE.md** - Architecture and development workflow
 - **docs/API.md** - Complete API endpoint documentation
 - **docs/CONTRIBUTING.md** - Code style and Git workflow
-- **CLAUDE.md** - Extended technical specifications for AI assistants
+- **CLAUDE.md** - Extended technical specifications and architecture reference
 
 ## Trust These Instructions
 
