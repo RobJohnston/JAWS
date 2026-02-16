@@ -48,21 +48,21 @@ curl http://localhost:8000/api/events  # Test
 
 ```bash
 # Unit tests (fast, no DB needed)
-vendor/bin/phpunit tests/Unit         # 346 tests, ~8s
+vendor/bin/phpunit tests/Unit         # 346+ tests, ~8s
 
 # Integration tests (require DB)
-vendor/bin/phpunit tests/Integration  # 10 tests
+vendor/bin/phpunit --testsuite=Integration
+
+# API tests (require DB and running server)
+php -S localhost:8000 -t public > /dev/null 2>&1 & SERVER_PID=$!; sleep 2
+vendor/bin/phpunit --testsuite=API
+kill $SERVER_PID
 
 # All tests
 vendor/bin/phpunit                    # Runs all test suites
 
 # Specific test file
 vendor/bin/phpunit tests/Unit/Domain/SelectionServiceTest.php
-
-# API tests (start server first)
-php -S localhost:8000 -t public > /dev/null 2>&1 & SERVER_PID=$!; sleep 2
-php tests/Integration/api_test.php -v
-kill $SERVER_PID
 ```
 
 **NEVER** run tests before `phinx migrate` - integration/API tests need the schema.
@@ -103,7 +103,10 @@ public/                  # Web root (index.php, frontend app/)
 
 ## CI/CD Pipeline
 
-`.github/workflows/ci.yml` runs 5 parallel jobs: build, setup-database, unit-tests, integration-tests, api-tests. Uses PHP 8.5 (local: 8.1+).
+`.github/workflows/ci.yml` uses a smart test strategy:
+- **On push**: Runs `build` and `unit-tests` jobs (fast feedback, ~2 minutes)
+- **On pull request**: Runs all 5 jobs with dependencies: `build` → `unit-tests` + `setup-database` → `integration-tests` → `api-tests` (~5 minutes)
+- Uses PHP 8.5 (local development: PHP 8.1+)
 
 **Common failures**: Missing DB migrations, server not started. DO NOT modify composer.lock unless using PHP 8.4+.
 
