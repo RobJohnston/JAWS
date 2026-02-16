@@ -17,6 +17,23 @@ For human developers, the primary documentation is in the `/docs` folder:
 
 This CLAUDE.md file contains technical specifications optimized for AI assistant consumption. It serves as the "source of truth" for technical details but is not the primary documentation for human developers.
 
+## Interactive Development Skills
+
+Common development workflows have been extracted into **skills** for interactive, step-by-step guidance:
+
+- **`/test`** - Run PHPUnit tests with appropriate commands
+- **`/conventional-commits`** - Create properly formatted commit messages
+- **`/add-endpoint`** - Add new REST API endpoints
+- **`/modify-schema`** - Modify database schema with migrations
+- **`/database-ops`** - Database operations (backup, restore, query)
+- **`/deploy-lightsail`** - Deploy to AWS Lightsail production
+- **`/add-ranking`** - Add new ranking criteria to selection algorithm
+- **`/add-rule`** - Add new optimization rules to assignment algorithm
+
+**Skills location:** `.claude/skills/` - See [`.claude/skills/README.md`](.claude/skills/README.md) for details.
+
+Use skills for procedural "how-to" tasks. This file focuses on architecture, concepts, and technical specifications.
+
 ## Project Overview
 
 JAWS is a PHP-based REST API for managing the Social Day Cruising program at Nepean Sailing Club. It handles boat fleet management, crew registration, and intelligent assignment of crew members to boats for seasonal sailing events. The system optimizes crew-to-boat matching based on multiple constraints including skill levels, availability, preferences, and historical participation.
@@ -68,146 +85,44 @@ php -S localhost:8000 -t public
 ```
 
 ### Run Tests
+
+**Quick reference:**
 ```bash
-# All tests
-./vendor/bin/phpunit
-
-# Unit tests only
-./vendor/bin/phpunit tests/Unit
-
-# Integration tests only
-./vendor/bin/phpunit tests/Integration
-
-# Specific test file
-./vendor/bin/phpunit tests/Unit/Domain/SelectionServiceTest.php
+./vendor/bin/phpunit                    # All tests
+./vendor/bin/phpunit tests/Unit         # Unit tests only
+./vendor/bin/phpunit --testsuite=API    # API tests
 ```
 
-### Run API Tests
-```bash
-# Ensure dev server is running
-php -S localhost:8000 -t public &
-
-# Run all API tests (PHPUnit)
-./vendor/bin/phpunit --testsuite=API
-
-# Run specific API test file
-./vendor/bin/phpunit tests/Integration/Api/EventApiTest.php
-
-# Run with verbose output
-./vendor/bin/phpunit --testsuite=API --verbose
-```
+**For detailed testing workflows, use the `/test` skill.**
 
 ### Deploy to AWS Lightsail
 
-**Note:** See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete deployment guide.
+**Server:** bitnami@16.52.222.15
 
-Upload files via SFTP:
+**For complete deployment procedures, use the `/deploy-lightsail` skill or see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).**
+
+### Common Database Operations
+
+**Quick reference:**
 ```bash
-ssh-add LightsailDefaultKey-ca-central-1.pem
-sftp bitnami@16.52.222.15
-cd /./opt/bitnami/jaws
-put -r public
-put -r src
-put -r config
-put composer.json
-put composer.lock
-put phinx.php
-put -r database/migrations
-bye
+vendor/bin/phinx migrate              # Apply migrations
+vendor/bin/phinx status               # Check status
+sqlite3 database/jaws.db "<query>"    # Query database
 ```
 
-Then set permissions:
-```bash
-ssh bitnami@16.52.222.15
-cd /opt/bitnami/jaws
-sudo chown -R bitnami:daemon /opt/bitnami/jaws
-composer install --optimize-autoloader
-sudo chmod 775 database
-sudo chmod 664 database/jaws.db
-sudo /opt/bitnami/ctlscript.sh restart apache
-```
-
-### Database Operations
-
-**Apply Migration:**
-```bash
-vendor/bin/phinx migrate
-```
-
-**Backup Database:**
-```bash
-cp database/jaws.db database/jaws.backup.$(date +%Y%m%d_%H%M%S).db
-```
-
-**Query Database:**
-```bash
-sqlite3 database/jaws.db "SELECT * FROM boats LIMIT 5;"
-```
-
-### Download Data from Production
-```bash
-ssh-add LightsailDefaultKey-ca-central-1.pem
-sftp bitnami@16.52.222.15
-cd opt/bitnami/jaws/database
-get jaws.db
-get jaws.db.backup.*
-bye
-```
+**For database operations (backup, restore, download from production), use the `/database-ops` skill.**
 
 ## Commit Message Format
 
-This project uses **Conventional Commits** specification for all commit messages. When creating commits, ALWAYS follow this format:
+This project uses **Conventional Commits** specification. Format: `<type>: <description>`
 
-### Format
+**Common types:** feat, fix, docs, test, refactor, ci
 
-```
-<type>[optional scope]: <description>
+**Example:** `feat: add crew notes field to database schema`
 
-[optional body]
+**For detailed guidance on creating commits, use the `/conventional-commits` skill.**
 
-[optional footer(s)]
-```
-
-### Types
-
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **style**: Changes that don't affect code meaning (formatting, white-space, etc.)
-- **refactor**: Code change that neither fixes a bug nor adds a feature
-- **perf**: Code change that improves performance
-- **test**: Adding missing tests or correcting existing tests
-- **build**: Changes affecting build system or external dependencies
-- **ci**: Changes to CI configuration files and scripts
-- **chore**: Other changes that don't modify src or test files
-
-### Examples
-
-```bash
-feat: add crew notes field to database schema
-fix: prevent duplicate crew assignments on same boat
-docs: update API documentation for availability endpoint
-test: add integration tests for AssignmentService
-refactor: extract rank calculation into separate service
-ci: add automated testing workflow
-```
-
-### Rules
-
-1. Use lowercase for type and description
-2. No period at the end of the description
-3. Use imperative mood ("add" not "added" or "adds")
-4. Keep description under 72 characters
-5. Add body if change needs explanation (use blank line after description)
-6. Reference issue numbers in footer if applicable
-
-### When Creating Commits
-
-When Claude Code creates commits:
-- Always include the Co-Authored-By line as specified in the git commit guidance
-- Choose the most appropriate type based on the change
-- Keep descriptions concise but descriptive
-- For multi-file changes, choose the type that best represents the primary purpose
+**Important:** Always include the Co-Authored-By line as specified in the git commit guidance.
 
 ## Clean Architecture Overview
 
@@ -797,43 +712,16 @@ class MyIntegrationTest extends IntegrationTestCase
 
 **Configuration:** `config/config.php` (reads environment variables with defaults)
 
-## Development Notes
+## Development Workflows
 
-### Adding New Ranking Criteria
+The following common development tasks have dedicated skills for step-by-step guidance:
 
-1. Add constant to `src/Domain/Enum/BoatRankDimension.php` or `src/Domain/Enum/CrewRankDimension.php`
-2. Update `Boat` or `Crew` entity constructor (adjust rank array size)
-3. Implement calculation logic in `RankingService.php`
-4. Update `SelectionService::is_greater()` if comparison logic changes
+- **`/add-endpoint`** - Adding new REST API endpoints
+- **`/modify-schema`** - Modifying database schema with Phinx migrations
+- **`/add-ranking`** - Adding new ranking criteria to boat/crew selection
+- **`/add-rule`** - Adding new optimization rules to assignment algorithm
 
-### Adding New Assignment Rules
-
-1. Add enum case to `src/Domain/Enum/AssignmentRule.php`
-2. Implement `crew_loss()` logic for the new rule in `AssignmentService.php`
-3. Implement `crew_grad()` logic for the new rule in `AssignmentService.php`
-4. Add rule to priority order in `AssignmentService::assign()`
-
-### Modifying Database Schema
-
-1. Create new migration file: `database/migrations/00X_description.sql`
-2. Write idempotent SQL (use `IF NOT EXISTS` clauses)
-3. Update Domain entity class (`src/Domain/Entity/*.php`)
-4. Update Repository implementation (`src/Infrastructure/Persistence/SQLite/*.php`)
-5. Update DTOs if API changes (`src/Application/DTO/Request|Response/*.php`)
-6. Write tests for new functionality
-7. Apply migration: `sqlite3 database/jaws.db < database/migrations/00X_description.sql`
-
-**SQLite Limitation:** For complex schema changes, use create-copy-drop pattern (see README.md)
-
-### Adding New API Endpoint
-
-1. Create Use Case: `src/Application/UseCase/{Context}/{Action}UseCase.php`
-2. Create Request/Response DTOs: `src/Application/DTO/Request|Response/*.php`
-3. Implement Controller method: `src/Presentation/Controller/*.php`
-4. Add route: `config/routes.php`
-5. Wire dependencies: `config/container.php`
-6. Write tests: Create new test class in `tests/Integration/Api/`
-7. Update Postman collection: `tests/JAWS_API.postman_collection.json`
+These skills provide detailed instructions, code examples, checklists, and best practices.
 
 ### Working with Time
 
