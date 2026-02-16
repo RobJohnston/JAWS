@@ -12,6 +12,14 @@ Run PHPUnit tests with appropriate commands.
 - Specific test files
 - Verbose output options
 
+#### `troubleshooting` - Common Issues & Solutions
+Diagnose and fix common development issues.
+- Database errors (locked, permissions, corruption)
+- Test failures (unit, integration, API)
+- Server issues (Apache, 404s, 500s)
+- Authentication problems
+- Performance issues
+
 ### 📝 Development Workflows
 
 #### `conventional-commits` - Commit Message Guide
@@ -75,6 +83,7 @@ Skills are invoked using the `/` prefix in Claude Code:
 
 ```
 /test
+/troubleshooting
 /conventional-commits
 /add-endpoint
 /modify-schema
@@ -95,6 +104,7 @@ Each skill provides:
 
 ### Frequently Used
 - `/test` - Run tests during development
+- `/troubleshooting` - Fix common issues
 - `/conventional-commits` - Create proper commit messages
 
 ### Common Development
