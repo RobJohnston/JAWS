@@ -710,4 +710,163 @@ class ProcessSeasonUpdateUseCaseTest extends IntegrationTestCase
         $this->assertEquals(0, (int)$boatRankAfter, 'Boat flexibility should be 0 (owner is crew)');
         $this->assertEquals(0, (int)$crewRankAfter, 'Crew flexibility should be 0 (crew owns boat)');
     }
+
+    /**
+     * Test: execute() recalculates absence ranks based on past no-shows
+     *
+     * Verifies that boats and crews with past no-shows get their absence rank
+     * updated based on actual history, not stale database values. This ensures
+     * entities with poor attendance get lower priority in selection.
+     */
+    public function testExecuteRecalculatesAbsenceRanks(): void
+    {
+        // Arrange: Create boat and crew with past no-shows
+        $boatId = $this->createTestBoat('sailaway', 2, 3);
+        $crewId = $this->createTestCrew('johndoe');
+
+        // Create 2 past events where boat/crew didn't show
+        // Use January 2026 dates (before current date of Feb 2026)
+        $this->createTestEvent('Fri Jan 15', '2026-01-15');
+        $this->createTestEvent('Fri Jan 22', '2026-01-22');
+
+        // Create history records with no-shows (empty participated/boat_key)
+        $this->pdo->exec("INSERT INTO boat_history (boat_id, event_id, participated) VALUES ($boatId, 'Fri Jan 15', '')");
+        $this->pdo->exec("INSERT INTO boat_history (boat_id, event_id, participated) VALUES ($boatId, 'Fri Jan 22', '')");
+        $this->pdo->exec("INSERT INTO crew_history (crew_id, event_id, boat_key) VALUES ($crewId, 'Fri Jan 15', '')");
+        $this->pdo->exec("INSERT INTO crew_history (crew_id, event_id, boat_key) VALUES ($crewId, 'Fri Jan 22', '')");
+
+        // Set absence ranks to 0 in database (incorrect/stale values)
+        $this->pdo->exec("UPDATE boats SET rank_absence = 0 WHERE id = $boatId");
+        $this->pdo->exec("UPDATE crews SET rank_absence = 0 WHERE id = $crewId");
+
+        // Create future event for processing
+        $this->createTestEvent('Fri May 29', '2026-05-29');
+        $this->setBoatAvailability($boatId, 'Fri May 29', 2);
+        $this->setCrewAvailability($crewId, 'Fri May 29', AvailabilityStatus::AVAILABLE->value);
+
+        // Verify initial state: absence ranks are 0 (incorrect)
+        $boatAbsence = $this->pdo->query("SELECT rank_absence FROM boats WHERE id = $boatId")->fetchColumn();
+        $crewAbsence = $this->pdo->query("SELECT rank_absence FROM crews WHERE id = $crewId")->fetchColumn();
+        $this->assertEquals(0, (int)$boatAbsence, 'Initial boat absence rank should be 0');
+        $this->assertEquals(0, (int)$crewAbsence, 'Initial crew absence rank should be 0');
+
+        // Act: Run season update
+        $this->useCase->execute();
+
+        // Assert: Verify absence ranks updated to 2 (based on 2 no-shows)
+        $boatAbsenceAfter = $this->pdo->query("SELECT rank_absence FROM boats WHERE id = $boatId")->fetchColumn();
+        $crewAbsenceAfter = $this->pdo->query("SELECT rank_absence FROM crews WHERE id = $crewId")->fetchColumn();
+
+        $this->assertEquals(2, (int)$boatAbsenceAfter, 'Boat absence rank should be 2 (2 no-shows)');
+        $this->assertEquals(2, (int)$crewAbsenceAfter, 'Crew absence rank should be 2 (2 no-shows)');
+    }
+
+    /**
+     * Test: execute() recalculates commitment ranks based on next event availability
+     *
+     * Verifies that crew commitment ranks are updated based on their availability
+     * status for the next event, not stale database values. Commitment rank
+     * determines priority: GUARANTEED=0, AVAILABLE=1, WITHDRAWN=2, UNAVAILABLE=3.
+     */
+    public function testExecuteRecalculatesCommitmentRanks(): void
+    {
+        // Arrange: Create crews with different availability for next event
+        $availableCrewId = $this->createTestCrew('available-crew');
+        $unavailableCrewId = $this->createTestCrew('unavailable-crew');
+
+        // Create future event (this will be the "next" event)
+        $this->createTestEvent('Fri May 29', '2026-05-29');
+
+        // Set availability: one available, one unavailable
+        $this->setCrewAvailability($availableCrewId, 'Fri May 29', AvailabilityStatus::AVAILABLE->value);
+        $this->setCrewAvailability($unavailableCrewId, 'Fri May 29', AvailabilityStatus::UNAVAILABLE->value);
+
+        // Set commitment ranks to WRONG values in database (stale)
+        // Available crew has rank 3 (UNAVAILABLE - wrong!)
+        // Unavailable crew has rank 1 (AVAILABLE - wrong!)
+        $this->pdo->exec("UPDATE crews SET rank_commitment = 3 WHERE id = $availableCrewId");
+        $this->pdo->exec("UPDATE crews SET rank_commitment = 1 WHERE id = $unavailableCrewId");
+
+        // Verify initial state: commitment ranks are incorrect
+        $availableCommitment = $this->pdo->query("SELECT rank_commitment FROM crews WHERE id = $availableCrewId")->fetchColumn();
+        $unavailableCommitment = $this->pdo->query("SELECT rank_commitment FROM crews WHERE id = $unavailableCrewId")->fetchColumn();
+        $this->assertEquals(3, (int)$availableCommitment, 'Available crew should initially have wrong rank 3');
+        $this->assertEquals(1, (int)$unavailableCommitment, 'Unavailable crew should initially have wrong rank 1');
+
+        // Act: Run season update
+        $this->useCase->execute();
+
+        // Assert: Verify commitment ranks corrected based on actual availability
+        $availableCommitmentAfter = $this->pdo->query("SELECT rank_commitment FROM crews WHERE id = $availableCrewId")->fetchColumn();
+        $unavailableCommitmentAfter = $this->pdo->query("SELECT rank_commitment FROM crews WHERE id = $unavailableCrewId")->fetchColumn();
+
+        $this->assertEquals(1, (int)$availableCommitmentAfter, 'Available crew should have commitment rank 1');
+        $this->assertEquals(3, (int)$unavailableCommitmentAfter, 'Unavailable crew should have commitment rank 3');
+    }
+
+    /**
+     * Test: execute() updates all rank dimensions together in single operation
+     *
+     * Comprehensive integration test verifying that when multiple rank dimensions
+     * have stale values, they all get recalculated and persisted together in one
+     * efficient operation per entity.
+     */
+    public function testExecuteUpdatesAllRankDimensionsTogether(): void
+    {
+        // Arrange: Create flex crew with past no-shows and availability
+        // This crew should have:
+        // - Flexibility rank 0 (owns a boat)
+        // - Absence rank 1 (1 past no-show)
+        // - Commitment rank 1 (available for next event)
+        // - Membership rank 1 (has membership number - lower priority per business logic)
+
+        // Create boat owned by John Doe
+        $stmt = $this->pdo->prepare("
+            INSERT INTO boats (key, display_name, owner_first_name, owner_last_name,
+                              owner_email, min_berths, max_berths, assistance_required,
+                              social_preference, rank_flexibility, rank_absence)
+            VALUES ('sailaway', 'Sail Away', 'John', 'Doe', 'john@example.com',
+                    2, 3, 'No', 'No', 1, 0)
+        ");
+        $stmt->execute();
+        $boatId = (int)$this->pdo->lastInsertId();
+
+        // Create crew John Doe (owns boat above)
+        $stmt = $this->pdo->prepare("
+            INSERT INTO crews (key, display_name, first_name, last_name, email,
+                              skill, membership_number, social_preference,
+                              rank_commitment, rank_flexibility, rank_membership, rank_absence)
+            VALUES ('johndoe', 'John Doe', 'John', 'Doe', 'john@example.com',
+                    1, '12345', 'No', 3, 1, 1, 0)
+        ");
+        $stmt->execute();
+        $crewId = (int)$this->pdo->lastInsertId();
+
+        // Create 1 past event with no-show (January 2026 - before current date)
+        $this->createTestEvent('Fri Jan 15', '2026-01-15');
+        $this->pdo->exec("INSERT INTO crew_history (crew_id, event_id, boat_key) VALUES ($crewId, 'Fri Jan 15', '')");
+
+        // Create future event
+        $this->createTestEvent('Fri May 29', '2026-05-29');
+        $this->setBoatAvailability($boatId, 'Fri May 29', 2);
+        $this->setCrewAvailability($crewId, 'Fri May 29', AvailabilityStatus::AVAILABLE->value);
+
+        // Verify initial state: all ranks are incorrect (stale DB values)
+        $ranks = $this->pdo->query("SELECT rank_commitment, rank_flexibility, rank_membership, rank_absence FROM crews WHERE id = $crewId")->fetch();
+        $this->assertEquals(3, (int)$ranks['rank_commitment'], 'Initial commitment should be wrong (3)');
+        $this->assertEquals(1, (int)$ranks['rank_flexibility'], 'Initial flexibility should be wrong (1)');
+        $this->assertEquals(1, (int)$ranks['rank_membership'], 'Initial membership should be wrong (1)');
+        $this->assertEquals(0, (int)$ranks['rank_absence'], 'Initial absence should be wrong (0)');
+
+        // Act: Run season update
+        $this->useCase->execute();
+
+        // Assert: Verify ALL ranks corrected in single operation
+        $ranksAfter = $this->pdo->query("SELECT rank_commitment, rank_flexibility, rank_membership, rank_absence FROM crews WHERE id = $crewId")->fetch();
+
+        $this->assertEquals(1, (int)$ranksAfter['rank_commitment'], 'Commitment should be 1 (AVAILABLE)');
+        $this->assertEquals(0, (int)$ranksAfter['rank_flexibility'], 'Flexibility should be 0 (owns boat)');
+        $this->assertEquals(1, (int)$ranksAfter['rank_membership'], 'Membership should be 1 (has number per business logic)');
+        $this->assertEquals(1, (int)$ranksAfter['rank_absence'], 'Absence should be 1 (1 no-show)');
+    }
 }
