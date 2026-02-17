@@ -18,6 +18,8 @@ use App\Presentation\Response\JsonResponse;
  * - GET /api/users/me - Get current user profile
  * - POST /api/users/me - Add crew or boat profile
  * - PATCH /api/users/me - Update user profile
+ * - GET /api/crews - Get all crews
+ * - GET /api/boats - Get all boats
  */
 class UserController
 {
@@ -25,6 +27,8 @@ class UserController
         private GetUserProfileUseCase $getUserProfileUseCase,
         private AddProfileUseCase $addProfileUseCase,
         private UpdateUserProfileUseCase $updateUserProfileUseCase,
+        private \App\Application\Port\Repository\CrewRepositoryInterface $crewRepository,
+        private \App\Application\Port\Repository\BoatRepositoryInterface $boatRepository,
     ) {
     }
 
@@ -81,5 +85,53 @@ class UserController
             'message' => 'Profile updated successfully',
             'profile' => $response->toArray(),
         ]);
+    }
+
+    /**
+     * Get all crews
+     *
+     * GET /api/crews
+     *
+     * @param array $auth Authentication context from JWT middleware
+     * @return JsonResponse
+     */
+    public function getAllCrews(array $auth): JsonResponse
+    {
+        $crews = $this->crewRepository->findAll();
+
+        $crewList = array_map(function ($crew) {
+            return [
+                'key' => $crew->getKey()->toString(),
+                'displayName' => $crew->getDisplayName(),
+                'firstName' => $crew->getFirstName(),
+                'lastName' => $crew->getLastName(),
+            ];
+        }, $crews);
+
+        return JsonResponse::success(['crews' => $crewList]);
+    }
+
+    /**
+     * Get all boats
+     *
+     * GET /api/boats
+     *
+     * @param array $auth Authentication context from JWT middleware
+     * @return JsonResponse
+     */
+    public function getAllBoats(array $auth): JsonResponse
+    {
+        $boats = $this->boatRepository->findAll();
+
+        $boatList = array_map(function ($boat) {
+            return [
+                'key' => $boat->getKey()->toString(),
+                'displayName' => $boat->getDisplayName(),
+                'ownerFirstName' => $boat->getOwnerFirstName(),
+                'ownerLastName' => $boat->getOwnerLastName(),
+            ];
+        }, $boats);
+
+        return JsonResponse::success(['boats' => $boatList]);
     }
 }

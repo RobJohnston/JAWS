@@ -375,7 +375,9 @@ $container->set(\App\Presentation\Controller\UserController::class, function ($c
     return new \App\Presentation\Controller\UserController(
         $c->get(\App\Application\UseCase\User\GetUserProfileUseCase::class),
         $c->get(\App\Application\UseCase\User\AddProfileUseCase::class),
-        $c->get(\App\Application\UseCase\User\UpdateUserProfileUseCase::class)
+        $c->get(\App\Application\UseCase\User\UpdateUserProfileUseCase::class),
+        $c->get(CrewRepositoryInterface::class),
+        $c->get(BoatRepositoryInterface::class)
     );
 });
 

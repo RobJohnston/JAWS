@@ -129,6 +129,15 @@ class UpdateUserProfileUseCase
         if (isset($profile['experience'])) {
             $crew->setExperience($profile['experience']);
         }
+        if (isset($profile['partnerKey'])) {
+            // Allow null to clear partner, or a valid CrewKey string
+            $partnerKey = empty($profile['partnerKey']) ? null : new \App\Domain\ValueObject\CrewKey($profile['partnerKey']);
+            $crew->setPartnerKey($partnerKey);
+        }
+        if (isset($profile['whitelist'])) {
+            // Update whitelist (array of boat keys)
+            $crew->setWhitelist(is_array($profile['whitelist']) ? $profile['whitelist'] : []);
+        }
 
         // Restore original rank before saving to avoid overwriting flexibility
         $crew->setRank($originalRank);

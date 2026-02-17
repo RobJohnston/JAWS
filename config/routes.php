@@ -149,6 +149,24 @@ return [
         'auth' => true,
     ],
 
+    // Get All Crews (for partner selection)
+    [
+        'method' => 'GET',
+        'path' => '/api/crews',
+        'controller' => UserController::class,
+        'action' => 'getAllCrews',
+        'auth' => true,
+    ],
+
+    // Get All Boats (for whitelist selection)
+    [
+        'method' => 'GET',
+        'path' => '/api/boats',
+        'controller' => UserController::class,
+        'action' => 'getAllBoats',
+        'auth' => true,
+    ],
+
     // =======================
     // Admin Endpoints
     // =======================
