@@ -167,7 +167,44 @@ jobs:
         run: php vendor/bin/phpunit --testsuite=Unit
 
   # ============================================================================
-  # Job 4: Integration Tests
+  # Job 4: Quality Checks
+  # Runs static analysis and coding standards checks
+  # ============================================================================
+  quality-checks:
+    name: Run Quality Checks
+
+    runs-on: ubuntu-latest
+
+    # Only needs build artifacts
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo, pdo_sqlite, sqlite3, curl, mbstring, openssl
+          coverage: none
+
+      - name: Download vendor artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vendor-artifacts
+          path: vendor
+
+      - name: Run PHPStan
+        continue-on-error: true
+        run: php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G
+
+      - name: Run PHPCS
+        continue-on-error: true
+        run: php vendor/bin/phpcs --standard=phpcs.xml
+
+  # ============================================================================
+  # Job 5: Integration Tests
   # This job runs tests that check how different parts work together
   # Integration tests need both dependencies AND database
   # ============================================================================
@@ -211,7 +248,7 @@ jobs:
         run: php vendor/bin/phpunit --testsuite=Integration
 
   # ============================================================================
-  # Job 5: API Tests
+  # Job 6: API Tests
   # This job runs tests that verify the REST API endpoints work correctly
   # API tests need dependencies, database, AND a running web server
   # Only runs if integration tests pass
@@ -269,6 +306,6 @@ jobs:
 
 
   # ============================================================================
-  # Job 6: Deploy to AWS Lightsail
+  # Job 7: Deploy to AWS Lightsail
   # ============================================================================
 #   See deploy.yml for deployment steps - this is just the CI pipeline for testing.
