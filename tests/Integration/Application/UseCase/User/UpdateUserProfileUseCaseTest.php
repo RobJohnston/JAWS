@@ -738,5 +738,4 @@ class UpdateUserProfileUseCaseTest extends IntegrationTestCase
         // Verify hash can be verified
         $this->assertTrue(password_verify($plainPassword, $hash));
     }
-
 }

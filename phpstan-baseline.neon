@@ -1,0 +1,367 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot instantiate class App\\Domain\\ValueObject\\CrewKey via private constructor App\\Domain\\ValueObject\\CrewKey\:\:__construct\(\)\.$#'
+			identifier: new.privateConstructor
+			count: 1
+			path: src/Application/UseCase/Auth/RegisterUseCase.php
+
+		-
+			message: '#^Cannot instantiate class App\\Domain\\ValueObject\\CrewKey via private constructor App\\Domain\\ValueObject\\CrewKey\:\:__construct\(\)\.$#'
+			identifier: new.privateConstructor
+			count: 1
+			path: src/Application/UseCase/User/AddProfileUseCase.php
+
+		-
+			message: '#^Parameter \#1 \$dimension of method App\\Domain\\Entity\\Boat\:\:setRankDimension\(\) expects App\\Domain\\Enum\\BoatRankDimension, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Application/UseCase/User/AddProfileUseCase.php
+
+		-
+			message: '#^Parameter \#1 \$dimension of method App\\Domain\\Entity\\Crew\:\:setRankDimension\(\) expects App\\Domain\\Enum\\CrewRankDimension, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Application/UseCase/User/AddProfileUseCase.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Domain/Entity/Crew.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 2
+			path: src/Domain/Service/AssignmentService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Infrastructure/Persistence/SQLite/BoatRepository.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Infrastructure/Persistence/SQLite/CrewRepository.php
+
+		-
+			message: '#^Call to method getMessage\(\) on an unknown class Aws\\Exception\\AwsException\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Infrastructure/Service/AwsSesEmailService.php
+
+		-
+			message: '#^Call to method sendEmail\(\) on an unknown class Aws\\Ses\\SesClient\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Infrastructure/Service/AwsSesEmailService.php
+
+		-
+			message: '#^Caught class Aws\\Exception\\AwsException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Infrastructure/Service/AwsSesEmailService.php
+
+		-
+			message: '#^Instantiated class Aws\\Ses\\SesClient not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Infrastructure/Service/AwsSesEmailService.php
+
+		-
+			message: '#^Property App\\Infrastructure\\Service\\AwsSesEmailService\:\:\$sesClient has unknown class Aws\\Ses\\SesClient as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Infrastructure/Service/AwsSesEmailService.php
+
+		-
+			message: '#^Property App\\Infrastructure\\Service\\SystemTimeService\:\:\$simulatedDate \(DateTimeImmutable\|null\) does not accept DateTimeInterface\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Infrastructure/Service/SystemTimeService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 2
+			path: tests/Integration/Api/UserProfileApiTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/Auth/LoginUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 4
+			path: tests/Integration/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 3
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsInt\(\) with int will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 5
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{''invalid_structure''\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: ''Fri May 15'', isAvailable\: ''yes''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: ''Fri May 15'', isAvailable\: true\}, array\{eventId\: ''Fri May 22''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: ''Fri May 15''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: 123, isAvailable\: true\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{isAvailable\: true\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Boat/UpdateBoatAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 3
+			path: tests/Integration/Application/UseCase/Crew/CrewQueryUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 4
+			path: tests/Integration/Application/UseCase/Crew/CrewQueryUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 4
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with int will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 4
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{''invalid_structure''\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: ''Fri May 15'', isAvailable\: ''yes''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: ''Fri May 15'', isAvailable\: true\}, array\{eventId\: ''Fri May 22''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: ''Fri May 15''\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{eventId\: 123, isAvailable\: true\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Parameter \#1 \$availabilities of class App\\Application\\DTO\\Request\\UpdateAvailabilityRequest constructor expects array\<int, array\{eventId\: string, isAvailable\: bool, berths\?\: int\}\>, array\{array\{isAvailable\: true\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Integration/Application/UseCase/Crew/UpdateCrewAvailabilityUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Integration/Application/UseCase/Event/EventUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/Season/GenerateFlotillaAndConfigTest.php
+
+		-
+			message: '#^Class App\\Domain\\Service\\SelectionService does not have a constructor and must be instantiated without any parameters\.$#'
+			identifier: new.noConstructor
+			count: 1
+			path: tests/Integration/Application/UseCase/Season/ProcessSeasonUpdateUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with App\\Application\\DTO\\Response\\UserResponse will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/User/UpdateUserProfileUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/User/UserProfileQueryUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with App\\Application\\DTO\\Response\\UserResponse will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Application/UseCase/User/UserProfileQueryUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Infrastructure/Persistence/SQLite/EventRepositoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Integration/Infrastructure/Persistence/SQLite/SeasonRepositoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsInt\(\) with int will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Infrastructure/Persistence/SQLite/SeasonRepositoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Infrastructure/Persistence/SQLite/UserRepositoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with DateTimeImmutable will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: tests/Integration/Infrastructure/Persistence/SQLite/UserRepositoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Integration/Infrastructure/Persistence/SQLite/UserRepositoryTest.php
+
+		-
+			message: '#^Call to an undefined method App\\Application\\Port\\Repository\\BoatRepositoryInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method App\\Application\\Port\\Repository\\BoatRepositoryInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Unit/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method App\\Application\\Port\\Repository\\CrewRepositoryInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Unit/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method App\\Application\\Port\\Repository\\CrewRepositoryInterface\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 9
+			path: tests/Unit/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to an undefined method App\\Application\\Port\\Service\\EmailServiceInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Unit/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with App\\Application\\DTO\\Response\\AuthResponse will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 4
+			path: tests/Unit/Application/UseCase/Auth/RegisterUseCaseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 12
+			path: tests/Unit/Domain/Service/AssignmentServiceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Domain/Service/AssignmentServiceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Infrastructure/Persistence/SQLite/SeasonRepositoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with PDO will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Integration/IntegrationTestCaseTest.php

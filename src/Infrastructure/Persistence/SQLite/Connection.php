@@ -52,7 +52,6 @@ class Connection
 
                 // Enable WAL mode for better concurrency
                 self::$instance->exec('PRAGMA journal_mode = WAL');
-
             } catch (PDOException $e) {
                 throw new PDOException(
                     "Failed to connect to SQLite database at {$dbPath}: " . $e->getMessage(),

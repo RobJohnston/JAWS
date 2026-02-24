@@ -540,5 +540,4 @@ class UpdateCrewAvailabilityUseCaseTest extends IntegrationTestCase
         $this->assertEquals(AvailabilityStatus::AVAILABLE->value, $this->getCrewAvailability('crew_1', 'Fri May 15'));
         $this->assertEquals(AvailabilityStatus::UNAVAILABLE->value, $this->getCrewAvailability('crew_2', 'Fri May 15'));
     }
-
 }

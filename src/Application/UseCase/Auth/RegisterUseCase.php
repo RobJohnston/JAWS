@@ -329,5 +329,4 @@ class RegisterUseCase
             error_log("Failed to send admin notification for registration: user_id={$user->getId()}, type={$request->accountType} - {$e->getMessage()}");
         }
     }
-
 }

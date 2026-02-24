@@ -155,7 +155,7 @@ class CrewRepositoryTest extends IntegrationTestCase
         $crews = $this->repository->findAll();
 
         // Extract our test crews (there may be others from setup)
-        $testCrews = array_filter($crews, function($c) {
+        $testCrews = array_filter($crews, function ($c) {
             return in_array($c->getDisplayName(), ['Alice Brown', 'Bob Carter', 'Zoe Anderson']);
         });
         $testCrews = array_values($testCrews);

@@ -30,13 +30,13 @@ class EventUseCaseTest extends IntegrationTestCase
 
         $this->eventRepository = new EventRepository();
         $this->seasonRepository = new SeasonRepository();
-        
+
         $this->getAllEventsUseCase = new GetAllEventsUseCase($this->eventRepository);
         $this->getEventUseCase = new GetEventUseCase(
             $this->eventRepository,
             $this->seasonRepository
         );
-        
+
         // Initialize test events
         $this->initializeTestData();
     }
@@ -75,7 +75,7 @@ class EventUseCaseTest extends IntegrationTestCase
             INSERT INTO events (event_id, event_date, start_time, finish_time, status)
             VALUES ('Test Event', '2026-05-01', '10:00:00', '15:00:00', 'upcoming')
         ");
-        
+
         $events = $this->getAllEventsUseCase->execute();
 
         $this->assertCount(1, $events);
@@ -97,7 +97,7 @@ class EventUseCaseTest extends IntegrationTestCase
 
         $this->assertCount(3, $events);
         $firstEvent = $events[0];
-        
+
         $this->assertNotNull($firstEvent->eventId);
         $this->assertNotNull($firstEvent->startTime);
         $this->assertNotNull($firstEvent->finishTime);
@@ -118,7 +118,7 @@ class EventUseCaseTest extends IntegrationTestCase
     public function testGetEventWithInvalidIdThrowsException(): void
     {
         $this->expectException(EventNotFoundException::class);
-        
+
         $eventId = EventId::fromString('Non Existent Event');
         $this->getEventUseCase->execute($eventId);
     }
@@ -126,9 +126,9 @@ class EventUseCaseTest extends IntegrationTestCase
     public function testGetEventWithDeletedEventThrowsException(): void
     {
         $this->pdo->exec("DELETE FROM events WHERE event_id = 'Fri May 15'");
-        
+
         $this->expectException(EventNotFoundException::class);
-        
+
         $eventId = EventId::fromString('Fri May 15');
         $this->getEventUseCase->execute($eventId);
     }

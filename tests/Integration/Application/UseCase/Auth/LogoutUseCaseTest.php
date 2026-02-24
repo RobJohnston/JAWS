@@ -25,7 +25,7 @@ class LogoutUseCaseTest extends IntegrationTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->userRepository = new UserRepository();
         $this->useCase = new LogoutUseCase($this->userRepository);
     }
@@ -102,7 +102,7 @@ class LogoutUseCaseTest extends IntegrationTestCase
         $this->userRepository->save($user);
         $user->updateLastLogin(new \DateTimeImmutable('2026-01-01 10:00:00'));
         $this->userRepository->save($user);
-        
+
         $userId = $user->getId();
         $userBefore = $this->userRepository->findById($userId);
 

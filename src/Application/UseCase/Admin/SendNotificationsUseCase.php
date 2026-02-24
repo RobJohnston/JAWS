@@ -110,11 +110,13 @@ class SendNotificationsUseCase
             // Note: Calendar attachments require direct PHPMailer access
             // For now, we send without attachments when using the simple send() method
             // TODO: Extend EmailServiceInterface to support attachments
-            if ($this->emailService->send(
-                $boat['owner_email'],
-                $subject,
-                $body
-            )) {
+            if (
+                $this->emailService->send(
+                    $boat['owner_email'],
+                    $subject,
+                    $body
+                )
+            ) {
                 $emailsSent++;
             } else {
                 error_log("Failed to send email to boat owner: {$boat['owner_email']}");
@@ -129,11 +131,13 @@ class SendNotificationsUseCase
                     $crews
                 );
 
-                if ($this->emailService->send(
-                    $crew['email'],
-                    $subject,
-                    $body
-                )) {
+                if (
+                    $this->emailService->send(
+                        $crew['email'],
+                        $subject,
+                        $body
+                    )
+                ) {
                     $emailsSent++;
                 } else {
                     error_log("Failed to send email to crew member: {$crew['email']}");
@@ -147,5 +151,4 @@ class SendNotificationsUseCase
             'message' => "Sent {$emailsSent} notification emails for event {$eventId->toString()}",
         ];
     }
-
 }

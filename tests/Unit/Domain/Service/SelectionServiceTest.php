@@ -624,10 +624,16 @@ class SelectionServiceTest extends TestCase
         foreach ($selectedBoats as $b) {
             $boatsByKey[$b->getKey()->toString()] = $b;
         }
-        $this->assertEquals(1, $boatsByKey['sailaway']->occupied_berths,
-            'sailaway offered 1 berth; must not be over-assigned');
-        $this->assertEquals(2, $boatsByKey['seabreeze']->occupied_berths,
-            'seabreeze offered 2 berths; should absorb the extra crew');
+        $this->assertEquals(
+            1,
+            $boatsByKey['sailaway']->occupied_berths,
+            'sailaway offered 1 berth; must not be over-assigned'
+        );
+        $this->assertEquals(
+            2,
+            $boatsByKey['seabreeze']->occupied_berths,
+            'seabreeze offered 2 berths; should absorb the extra crew'
+        );
     }
 
     // Tests that boat and crew entities maintain their identity after selection

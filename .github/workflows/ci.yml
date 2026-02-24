@@ -196,12 +196,10 @@ jobs:
           path: vendor
 
       - name: Run PHPStan
-        continue-on-error: true
-        run: php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G
+        run: composer quality:phpstan
 
       - name: Run PHPCS
-        continue-on-error: true
-        run: php vendor/bin/phpcs --standard=phpcs.xml
+        run: composer quality:phpcs
 
   # ============================================================================
   # Job 5: Integration Tests

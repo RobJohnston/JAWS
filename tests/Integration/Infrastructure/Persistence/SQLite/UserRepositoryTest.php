@@ -445,7 +445,7 @@ class UserRepositoryTest extends IntegrationTestCase
     public function testFindAllReturnsAllUsers(): void
     {
         $this->repository->save(new User(email: 'alpha@example.com', passwordHash: 'hash', accountType: 'crew'));
-        $this->repository->save(new User(email: 'beta@example.com',  passwordHash: 'hash', accountType: 'crew'));
+        $this->repository->save(new User(email: 'beta@example.com', passwordHash: 'hash', accountType: 'crew'));
         $this->repository->save(new User(email: 'gamma@example.com', passwordHash: 'hash', accountType: 'crew'));
 
         $result = $this->repository->findAll();
@@ -456,13 +456,13 @@ class UserRepositoryTest extends IntegrationTestCase
     public function testFindAllReturnsUsersOrderedByEmail(): void
     {
         $this->repository->save(new User(email: 'charlie@example.com', passwordHash: 'hash', accountType: 'crew'));
-        $this->repository->save(new User(email: 'alice@example.com',   passwordHash: 'hash', accountType: 'crew'));
-        $this->repository->save(new User(email: 'bob@example.com',     passwordHash: 'hash', accountType: 'crew'));
+        $this->repository->save(new User(email: 'alice@example.com', passwordHash: 'hash', accountType: 'crew'));
+        $this->repository->save(new User(email: 'bob@example.com', passwordHash: 'hash', accountType: 'crew'));
 
         $result = $this->repository->findAll();
 
-        $this->assertEquals('alice@example.com',   $result[0]->getEmail());
-        $this->assertEquals('bob@example.com',     $result[1]->getEmail());
+        $this->assertEquals('alice@example.com', $result[0]->getEmail());
+        $this->assertEquals('bob@example.com', $result[1]->getEmail());
         $this->assertEquals('charlie@example.com', $result[2]->getEmail());
     }
 

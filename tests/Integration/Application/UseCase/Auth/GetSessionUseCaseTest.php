@@ -23,7 +23,7 @@ class GetSessionUseCaseTest extends IntegrationTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->userRepository = new UserRepository();
         $this->useCase = new GetSessionUseCase($this->userRepository);
     }

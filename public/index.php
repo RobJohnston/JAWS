@@ -204,7 +204,6 @@ try {
         $fallbackResponse = \App\Presentation\Response\JsonResponse::success($response);
         $fallbackResponse->send();
     }
-
 } catch (\Throwable $e) {
     // Handle all uncaught exceptions
     $response = $errorMiddleware->handleException($e);
