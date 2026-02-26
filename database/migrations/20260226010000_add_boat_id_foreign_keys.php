@@ -8,17 +8,6 @@ final class AddBoatIdForeignKeys extends AbstractMigration
 {
     public function up(): void
     {
-        $orphanWhitelist = $this->fetchRow(
-            "SELECT COUNT(*) AS count
-            FROM crew_whitelist cw
-            LEFT JOIN boats b ON b.key = cw.boat_key
-            WHERE b.id IS NULL"
-        );
-
-        if ((int) ($orphanWhitelist['count'] ?? 0) > 0) {
-            throw new RuntimeException('Cannot migrate crew_whitelist: orphan boat_key values found.');
-        }
-
         $this->execute('PRAGMA foreign_keys = OFF');
 
         $this->execute(
@@ -26,10 +15,10 @@ final class AddBoatIdForeignKeys extends AbstractMigration
                 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 crew_id INTEGER NOT NULL,
                 boat_key VARCHAR(255) NOT NULL,
-                boat_id INTEGER NOT NULL,
+                boat_id INTEGER NULL,
                 created_at DATETIME_TEXT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (crew_id) REFERENCES crews (id) ON DELETE CASCADE ON UPDATE NO ACTION,
-                FOREIGN KEY (boat_id) REFERENCES boats (id) ON DELETE CASCADE ON UPDATE NO ACTION
+                FOREIGN KEY (boat_id) REFERENCES boats (id) ON DELETE SET NULL ON UPDATE NO ACTION
             )"
         );
 
@@ -37,14 +26,13 @@ final class AddBoatIdForeignKeys extends AbstractMigration
             "INSERT INTO crew_whitelist_new (id, crew_id, boat_key, boat_id, created_at)
             SELECT cw.id, cw.crew_id, cw.boat_key, b.id, cw.created_at
             FROM crew_whitelist cw
-            INNER JOIN boats b ON b.key = cw.boat_key"
+            LEFT JOIN boats b ON b.key = cw.boat_key"
         );
 
         $this->execute('DROP TABLE crew_whitelist');
         $this->execute('ALTER TABLE crew_whitelist_new RENAME TO crew_whitelist');
 
         $this->execute('CREATE UNIQUE INDEX crew_whitelist_crew_id_boat_key_index ON crew_whitelist (crew_id, boat_key)');
-        $this->execute('CREATE UNIQUE INDEX crew_whitelist_crew_id_boat_id_index ON crew_whitelist (crew_id, boat_id)');
         $this->execute('CREATE INDEX idx_crew_whitelist_crew ON crew_whitelist (crew_id)');
         $this->execute('CREATE INDEX idx_crew_whitelist_boat ON crew_whitelist (boat_key)');
         $this->execute('CREATE INDEX idx_crew_whitelist_boat_id ON crew_whitelist (boat_id)');

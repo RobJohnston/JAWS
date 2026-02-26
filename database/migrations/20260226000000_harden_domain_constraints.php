@@ -15,9 +15,6 @@ final class HardenDomainConstraints extends AbstractMigration
                 SELECT RAISE(ABORT, 'boats.min_berths must be >= 0')
                 WHERE NEW.min_berths < 0;
 
-                SELECT RAISE(ABORT, 'boats.max_berths must be >= min_berths')
-                WHERE NEW.max_berths < NEW.min_berths;
-
                 SELECT RAISE(ABORT, 'boats.assistance_required must be Yes or No')
                 WHERE NEW.assistance_required NOT IN ('Yes', 'No');
 
@@ -32,9 +29,6 @@ final class HardenDomainConstraints extends AbstractMigration
             BEGIN
                 SELECT RAISE(ABORT, 'boats.min_berths must be >= 0')
                 WHERE NEW.min_berths < 0;
-
-                SELECT RAISE(ABORT, 'boats.max_berths must be >= min_berths')
-                WHERE NEW.max_berths < NEW.min_berths;
 
                 SELECT RAISE(ABORT, 'boats.assistance_required must be Yes or No')
                 WHERE NEW.assistance_required NOT IN ('Yes', 'No');
