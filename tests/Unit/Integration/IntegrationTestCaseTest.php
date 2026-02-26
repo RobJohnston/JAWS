@@ -39,7 +39,7 @@ class IntegrationTestCaseTest extends IntegrationTestCase
         ")->fetchAll();
         $this->assertNotEmpty($result, 'phinxlog table should exist after running migrations');
 
-        // Verify all 6 migrations executed
+        // Verify all 8 migrations executed
         $versions = $this->pdo->query("
             SELECT version FROM phinxlog ORDER BY version
         ")->fetchAll(PDO::FETCH_COLUMN);
@@ -50,10 +50,12 @@ class IntegrationTestCaseTest extends IntegrationTestCase
             20260131000000,  // add_last_logout_column
             20260201000000,  // make_display_name_nullable
             20260221000000,  // remove_crew_rank_flexibility
-            20260224000000   // remove_email_columns
+            20260224000000,  // remove_email_columns
+            20260226000000,  // harden_domain_constraints
+            20260226010000   // add_boat_id_foreign_keys
         ];
 
-        $this->assertEquals($expected, $versions, 'All 6 migrations should be applied');
+        $this->assertEquals($expected, $versions, 'All 8 migrations should be applied');
     }
 
     public function testSeasonConfigInitialized(): void
