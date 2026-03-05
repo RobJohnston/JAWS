@@ -7,22 +7,56 @@
 import * as ApiService from './apiService.js';
 
 /**
- * Get all events with full flotilla data from /api/flotillas endpoint
- * @returns {Promise<Array>} Array of event objects with flotilla information
+ * Get all events with full flotilla data, merged with event details (times).
+ * Fetches /api/events and /api/flotillas in parallel, merges by eventId.
+ * @returns {Promise<Array>} Array of event objects with flotilla and timing info
  */
 export async function getEventsWithFlotilla() {
     try {
-        const response = await ApiService.get('/flotillas');
+        const [eventsRes, flotillasRes] = await Promise.all([
+            ApiService.get('/events'),
+            ApiService.get('/flotillas'),
+        ]);
 
-        // API returns { success: true, data: { flotillas: [...] } }
-        if (response.success && response.data && response.data.flotillas) {
-            return response.data.flotillas;
+        // Build eventId -> event detail map for O(1) merge
+        const eventMap = {};
+        if (eventsRes.success && eventsRes.data?.events) {
+            eventsRes.data.events.forEach(e => {
+                eventMap[e.eventId] = e;
+            });
         }
 
-        return [];
+        if (!flotillasRes.success || !flotillasRes.data?.flotillas) {
+            return [];
+        }
+
+        // Merge timing info from events into each flotilla entry
+        return flotillasRes.data.flotillas.map(f => ({
+            ...f,
+            date: eventMap[f.eventId]?.date ?? f.eventId,
+            startTime: eventMap[f.eventId]?.startTime ?? null,
+            finishTime: eventMap[f.eventId]?.finishTime ?? null,
+        }));
     } catch (error) {
         console.error('Failed to fetch events with flotilla data:', error);
         throw error;
+    }
+}
+
+/**
+ * Format a time string "HH:MM:SS" to "H:MM AM/PM"
+ * @param {string} timeString - Time in HH:MM or HH:MM:SS format
+ * @returns {string} Formatted time string, or empty string if null/invalid
+ */
+export function formatTime(timeString) {
+    if (!timeString) return '';
+    try {
+        const [hours, minutes] = timeString.split(':').map(Number);
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const h = hours % 12 || 12;
+        return `${h}:${String(minutes).padStart(2, '0')} ${ampm}`;
+    } catch {
+        return timeString;
     }
 }
 
@@ -105,7 +139,7 @@ export function isDeadlinePassed(dateString) {
  * @returns {string} Status text (e.g., "upcoming", "past", "today")
  */
 export function getEventStatus(event) {
-    const eventDate = new Date(event.date + 'T12:00:00');
+    const eventDate = new Date((event.date ?? event.eventId) + 'T12:00:00');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     eventDate.setHours(0, 0, 0, 0);

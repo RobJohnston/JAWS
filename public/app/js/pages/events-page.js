@@ -12,38 +12,69 @@ if (await isSignedIn()) {
     const user = await getCurrentUser();
     updateAuthenticatedNavigation(user, signOut);
     addAdminLink(user);
+
+    // Send signed-in users to their dashboard, not the guest join page
+    document.querySelectorAll('a[href="account.html"]').forEach(a => {
+        a.href = 'dashboard.html';
+    });
 }
 
 /**
  * Render a single event with its flotilla information
- * @param {Object} event - Event object with flotilla data
+ * @param {Object} event - Event object with flotilla and timing data
+ * @param {boolean} authenticated - Whether the current user is signed in
  * @returns {DocumentFragment} DOM fragment containing the event HTML
  */
-function renderEvent(event) {
+function renderEvent(event, authenticated) {
     const fragment = document.createDocumentFragment();
+    const status = CalendarService.getEventStatus(event);
 
-    // Create schedule date heading
+    // --- Date heading ---
     const scheduleDateDiv = document.createElement('div');
-    scheduleDateDiv.className = 'schedule-date';
-    scheduleDateDiv.textContent = event.eventId; // CalendarService.formatDisplayDate(event.date);
+    scheduleDateDiv.className = `schedule-date${status === 'today' ? ' is-today' : ''}`;
+
+    const timeEl = document.createElement('time');
+    timeEl.setAttribute('datetime', event.date ?? event.eventId);
+    timeEl.textContent = CalendarService.formatDisplayDate(event.date ?? event.eventId);
+    scheduleDateDiv.appendChild(timeEl);
+
+    // Show event times if available
+    if (event.startTime && event.finishTime) {
+        const timesSpan = document.createElement('span');
+        timesSpan.className = 'event-times';
+        timesSpan.textContent = ` · ${CalendarService.formatTime(event.startTime)}–${CalendarService.formatTime(event.finishTime)}`;
+        scheduleDateDiv.appendChild(timesSpan);
+    }
+
     fragment.appendChild(scheduleDateDiv);
 
-    // Render crewed boats
-    if (CalendarService.hasCrewedBoats(event)) {
+    const hasAssignments = CalendarService.hasCrewedBoats(event);
+    const hasWaitlist = CalendarService.hasWaitlist(event);
+
+    // --- No assignments yet state ---
+    if (!hasAssignments && !hasWaitlist) {
+        const noAssign = document.createElement('div');
+        noAssign.className = 'no-assignments';
+        noAssign.textContent = 'No assignments yet — check back closer to the event.';
+        fragment.appendChild(noAssign);
+    }
+
+    // --- Crewed boats ---
+    if (hasAssignments) {
         event.flotilla.crewedBoats.forEach(assignment => {
             const boatDiv = document.createElement('div');
             boatDiv.className = 'boat-assignment';
 
             // Boat name
-            const boatNameDiv = document.createElement('div');
-            const boatNameStrong = document.createElement('strong');
-            boatNameStrong.textContent = assignment.boat.displayName;
-            boatNameDiv.appendChild(boatNameStrong);
-            boatDiv.appendChild(boatNameDiv);
+            const boatTag = document.createElement('span');
+            boatTag.className = 'crew-tag crew-tag--boat';
+            boatTag.textContent = `⛵ ${assignment.boat.displayName}`;
+            boatDiv.appendChild(boatTag);
 
             // Crew list
             const crewListDiv = document.createElement('div');
             crewListDiv.className = 'crew-list';
+            crewListDiv.setAttribute('aria-label', `Crew aboard ${assignment.boat.displayName}`);
 
             assignment.crews.forEach(crew => {
                 const crewTag = document.createElement('span');
@@ -57,8 +88,8 @@ function renderEvent(event) {
         });
     }
 
-    // Render waitlist section if applicable
-    if (CalendarService.hasWaitlist(event)) {
+    // --- Waitlist ---
+    if (hasWaitlist) {
         const waitlistDiv = document.createElement('div');
         waitlistDiv.className = 'waitlist';
 
@@ -66,29 +97,50 @@ function renderEvent(event) {
         waitlistHeading.textContent = 'Waitlist';
         waitlistDiv.appendChild(waitlistHeading);
 
-        const waitlistContent = document.createElement('div');
-        waitlistContent.className = 'crew-list';
-
-        // Add waitlisted boats
+        // Waitlisted boats
         const waitlistedBoats = CalendarService.getWaitlistedBoats(event);
-        waitlistedBoats.forEach(boat => {
-            const boatTag = document.createElement('span');
-            boatTag.className = 'crew-tag';
-            boatTag.textContent = boat.displayName;
-            waitlistContent.appendChild(boatTag);
-        });
+        if (waitlistedBoats.length > 0) {
+            const boatList = document.createElement('div');
+            boatList.className = 'crew-list';
+            boatList.setAttribute('aria-label', 'Waitlisted boats');
 
-        // Add waitlisted crews
+            waitlistedBoats.forEach(boat => {
+                const tag = document.createElement('span');
+                tag.className = 'crew-tag crew-tag--boat';
+                tag.textContent = `⛵ ${boat.displayName}`;
+                boatList.appendChild(tag);
+            });
+            waitlistDiv.appendChild(boatList);
+        }
+
+        // Waitlisted crews
         const waitlistedCrews = CalendarService.getWaitlistedCrews(event);
-        waitlistedCrews.forEach(crew => {
-            const crewTag = document.createElement('span');
-            crewTag.className = 'crew-tag';
-            crewTag.textContent = crew.displayName;
-            waitlistContent.appendChild(crewTag);
-        });
+        if (waitlistedCrews.length > 0) {
+            const crewList = document.createElement('div');
+            crewList.className = 'crew-list';
+            crewList.setAttribute('aria-label', 'Waitlisted crew');
 
-        waitlistDiv.appendChild(waitlistContent);
+            waitlistedCrews.forEach(crew => {
+                const tag = document.createElement('span');
+                tag.className = 'crew-tag';
+                tag.textContent = crew.displayName;
+                crewList.appendChild(tag);
+            });
+            waitlistDiv.appendChild(crewList);
+        }
+
         fragment.appendChild(waitlistDiv);
+    }
+
+    // --- Register CTA (upcoming events only) ---
+    if (status === 'upcoming') {
+        const ctaDiv = document.createElement('div');
+        ctaDiv.className = 'register-cta';
+        const ctaLink = document.createElement('a');
+        ctaLink.href = authenticated ? 'dashboard.html' : 'signin.html';
+        ctaLink.textContent = authenticated ? 'Update your availability →' : 'Register for this event →';
+        ctaDiv.appendChild(ctaLink);
+        fragment.appendChild(ctaDiv);
     }
 
     return fragment;
@@ -108,14 +160,13 @@ async function renderAllEvents() {
     // Show loading state
     container.innerHTML = '<div class="loading-state">Loading events...</div>';
 
+    const authenticated = await isSignedIn();
+
     try {
-        // Fetch events with flotilla data
         const events = await CalendarService.getEventsWithFlotilla();
 
-        // Clear loading state
         container.innerHTML = '';
 
-        // Check if we have events
         if (!events || events.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -127,23 +178,33 @@ async function renderAllEvents() {
             return;
         }
 
-        // Render each event
         events.forEach(event => {
-            const eventFragment = renderEvent(event);
-            container.appendChild(eventFragment);
+            container.appendChild(renderEvent(event, authenticated));
         });
 
     } catch (error) {
         console.error('Failed to load events:', error);
-        container.innerHTML = `
-            <div class="alert alert-error">
-                <strong>Unable to load events</strong>
-                <p>There was a problem loading the event schedule. Please try refreshing the page.</p>
-                <p style="margin-top: 0.5rem; font-size: 0.9em; opacity: 0.8;">Error: ${error.message}</p>
-            </div>
-        `;
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-error';
+
+        const strong = document.createElement('strong');
+        strong.textContent = 'Unable to load events';
+        errorDiv.appendChild(strong);
+
+        const p1 = document.createElement('p');
+        p1.textContent = 'There was a problem loading the event schedule. Please try refreshing the page.';
+        errorDiv.appendChild(p1);
+
+        const p2 = document.createElement('p');
+        p2.style.cssText = 'margin-top: 0.5rem; font-size: 0.9em; opacity: 0.8;';
+        p2.textContent = `Error: ${error.message}`;
+        errorDiv.appendChild(p2);
+
+        container.innerHTML = '';
+        container.appendChild(errorDiv);
     }
 }
 
-// Initialize events rendering when page loads
+// Module scripts are deferred — DOM is already ready at this point
 renderAllEvents();

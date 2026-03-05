@@ -592,6 +592,56 @@ main {
   font-weight: 700;
 }
 
+/* Today highlight on schedule date heading */
+.schedule-date.is-today {
+  background: var(--gradient-2);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.35);
+}
+
+/* Event times shown inline in the date heading */
+.schedule-date .event-times {
+  font-weight: 400;
+  opacity: 0.85;
+  font-size: 1rem;
+}
+
+/* Per-event "no assignments yet" placeholder */
+.no-assignments {
+  padding: 1rem 1.5rem;
+  color: var(--text-gray);
+  font-style: italic;
+  font-size: 0.95rem;
+  background: var(--white);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Waitlisted boat tags use coral to match the boat icon convention */
+.crew-tag--boat {
+  background: var(--gradient-2);
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* Register / update CTA link below each upcoming event */
+.register-cta {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.register-cta a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--teal);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.register-cta a:hover {
+  color: var(--deep-teal);
+}
+
 /* Forms */
 .form-container {
   max-width: 750px;
