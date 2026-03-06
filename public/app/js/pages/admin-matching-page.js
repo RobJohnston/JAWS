@@ -146,6 +146,7 @@ function renderCapacitySummary(capacity) {
     const totalCrewsEl = document.getElementById('total-crews');
     const surplusDeficitEl = document.getElementById('surplus-deficit');
     const scenarioBadge = document.getElementById('scenario-badge');
+    const scenarioDescription = document.getElementById('scenario-description');
 
     // Show section
     summarySection.style.display = 'block';
@@ -153,16 +154,29 @@ function renderCapacitySummary(capacity) {
     // Update values
     totalBerthsEl.textContent = capacity.total_berths;
     totalCrewsEl.textContent = capacity.total_crews;
-    surplusDeficitEl.textContent = capacity.surplus_deficit > 0 ? `+${capacity.surplus_deficit}` : capacity.surplus_deficit;
+    const sd = capacity.surplus_deficit;
+    surplusDeficitEl.textContent = sd > 0 ? `+${sd}` : sd;
+    surplusDeficitEl.className = 'capacity-value ' + (sd === 0 ? 'surplus' : sd > 0 ? 'warning' : 'deficit');
 
     // Update scenario badge
-    scenarioBadge.className = `scenario-badge ${capacity.scenario}`;
+    const scenarioClassMap = {
+        'perfect_fit': 'perfect',
+        'too_few_crews': 'few',
+        'too_many_crews': 'many'
+    };
     const scenarioText = {
         'perfect_fit': 'Perfect Match',
         'too_few_crews': 'Too Few Crews',
         'too_many_crews': 'Too Many Crews'
     };
+    const scenarioDescriptions = {
+        'perfect_fit': 'All berths will be filled exactly.',
+        'too_few_crews': 'Not enough crews — some boats will have empty berths.',
+        'too_many_crews': 'More crews than berths — some crews will be waitlisted.'
+    };
+    scenarioBadge.className = `scenario-badge ${scenarioClassMap[capacity.scenario] || ''}`;
     scenarioBadge.textContent = scenarioText[capacity.scenario] || capacity.scenario;
+    scenarioDescription.textContent = scenarioDescriptions[capacity.scenario] || '';
 }
 
 /**
@@ -178,6 +192,7 @@ function renderBoatsTable(boats) {
     }
 
     section.style.display = 'block';
+    document.querySelector('#boats-section h2').textContent = `Available Boats (${boats.length})`;
 
     const table = `
         <table class="data-table">
@@ -220,6 +235,7 @@ function renderCrewsTable(crews) {
     }
 
     section.style.display = 'block';
+    document.querySelector('#crews-section h2').textContent = `Available Crews (${crews.length})`;
 
     const skillLevelText = {
         0: 'novice',

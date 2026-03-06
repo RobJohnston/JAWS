@@ -1603,6 +1603,10 @@ nav .user-greeting {
   margin-bottom: 0.5rem;
 }
 
+.capacity-value.surplus { color: var(--deep-teal); }
+.capacity-value.warning { color: #f39c12; }
+.capacity-value.deficit { color: #d63031; }
+
 .capacity-label {
   color: var(--text-gray);
   font-size: 0.9rem;
