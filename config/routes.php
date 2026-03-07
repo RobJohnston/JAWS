@@ -161,6 +161,15 @@ return [
     // Admin Endpoints
     // =======================
 
+    // System Dashboard
+    [
+        'method' => 'GET',
+        'path' => '/api/admin/dashboard',
+        'controller' => AdminController::class,
+        'action' => 'getDashboard',
+        'auth' => true,
+    ],
+
     // Get Matching Data for Event
     [
         'method' => 'GET',

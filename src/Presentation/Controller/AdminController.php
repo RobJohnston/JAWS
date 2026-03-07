@@ -17,6 +17,7 @@ use App\Application\UseCase\Admin\UpdateCrewProfileUseCase;
 use App\Application\UseCase\Admin\AddToCrewWhitelistUseCase;
 use App\Application\UseCase\Admin\RemoveFromCrewWhitelistUseCase;
 use App\Application\UseCase\Admin\SetCrewCommitmentRankUseCase;
+use App\Application\UseCase\Admin\GetDashboardUseCase;
 use App\Application\UseCase\Season\UpdateConfigUseCase;
 use App\Application\UseCase\Season\ProcessSeasonUpdateUseCase;
 use App\Application\DTO\Request\UpdateConfigRequest;
@@ -49,6 +50,7 @@ class AdminController
         private AddToCrewWhitelistUseCase $addToCrewWhitelistUseCase,
         private RemoveFromCrewWhitelistUseCase $removeFromCrewWhitelistUseCase,
         private SetCrewCommitmentRankUseCase $setCrewCommitmentRankUseCase,
+        private GetDashboardUseCase $getDashboardUseCase,
     ) {
     }
 
@@ -418,6 +420,29 @@ class AdminController
             return JsonResponse::success($result);
         } catch (CrewNotFoundException | BoatNotFoundException $e) {
             return JsonResponse::notFound($e->getMessage());
+        } catch (\Exception $e) {
+            return JsonResponse::serverError($e->getMessage());
+        }
+    }
+
+    /**
+     * GET /api/admin/dashboard
+     *
+     * Returns aggregated system status for the admin dashboard.
+     *
+     * @param array $auth Authentication context
+     */
+    public function getDashboard(array $auth): JsonResponse
+    {
+        if (!$this->isAdmin($auth)) {
+            return JsonResponse::error('Admin privileges required', 403);
+        }
+
+        try {
+            header('Cache-Control: no-store');
+            $result = $this->getDashboardUseCase->execute();
+
+            return JsonResponse::success($result);
         } catch (\Exception $e) {
             return JsonResponse::serverError($e->getMessage());
         }

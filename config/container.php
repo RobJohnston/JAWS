@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 use App\Application\Port\Repository\BoatRepositoryInterface;
 use App\Application\Port\Repository\CrewRepositoryInterface;
+use App\Application\Port\Repository\DashboardRepositoryInterface;
 use App\Application\Port\Repository\EventRepositoryInterface;
 use App\Application\Port\Repository\SeasonRepositoryInterface;
 use App\Application\Port\Repository\UserRepositoryInterface;
@@ -26,6 +27,7 @@ use App\Application\Port\Service\LockServiceInterface;
 use App\Application\Port\Service\TransactionServiceInterface;
 use App\Infrastructure\Persistence\SQLite\BoatRepository;
 use App\Infrastructure\Persistence\SQLite\CrewRepository;
+use App\Infrastructure\Persistence\SQLite\DashboardRepository;
 use App\Infrastructure\Persistence\SQLite\EventRepository;
 use App\Infrastructure\Persistence\SQLite\SeasonRepository;
 use App\Infrastructure\Persistence\SQLite\UserRepository;
@@ -102,6 +104,10 @@ $container->set(SeasonRepositoryInterface::class, function () {
 
 $container->set(UserRepositoryInterface::class, function () {
     return new UserRepository();
+});
+
+$container->set(DashboardRepositoryInterface::class, function () {
+    return new DashboardRepository();
 });
 
 // Services (External Adapters)
@@ -356,6 +362,16 @@ $container->set(\App\Application\UseCase\Admin\SetCrewCommitmentRankUseCase::cla
     );
 });
 
+$container->set(\App\Application\UseCase\Admin\GetDashboardUseCase::class, function ($c) {
+    return new \App\Application\UseCase\Admin\GetDashboardUseCase(
+        $c->get(SeasonRepositoryInterface::class),
+        $c->get(EventRepositoryInterface::class),
+        $c->get(BoatRepositoryInterface::class),
+        $c->get(CrewRepositoryInterface::class),
+        $c->get(DashboardRepositoryInterface::class)
+    );
+});
+
 // Cron Use Cases
 $container->set(\App\Application\UseCase\Cron\SendCrewReminderUseCase::class, function ($c) {
     return new \App\Application\UseCase\Cron\SendCrewReminderUseCase(
@@ -489,7 +505,8 @@ $container->set(\App\Presentation\Controller\AdminController::class, function ($
         $c->get(\App\Application\UseCase\Admin\UpdateCrewProfileUseCase::class),
         $c->get(\App\Application\UseCase\Admin\AddToCrewWhitelistUseCase::class),
         $c->get(\App\Application\UseCase\Admin\RemoveFromCrewWhitelistUseCase::class),
-        $c->get(\App\Application\UseCase\Admin\SetCrewCommitmentRankUseCase::class)
+        $c->get(\App\Application\UseCase\Admin\SetCrewCommitmentRankUseCase::class),
+        $c->get(\App\Application\UseCase\Admin\GetDashboardUseCase::class)
     );
 });
 

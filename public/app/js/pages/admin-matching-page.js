@@ -43,6 +43,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Setup event listeners
     setupEventListeners();
+
+    // Pre-select event from query string (e.g. ?event=E01)
+    const preSelectId = new URLSearchParams(window.location.search).get('event');
+    if (preSelectId) {
+        const select = document.getElementById('event-select');
+        select.value = preSelectId;
+        if (select.value) {
+            document.getElementById('load-btn').disabled = false;
+            await loadMatchingData(preSelectId);
+        }
+    }
 });
 
 /**

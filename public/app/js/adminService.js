@@ -296,6 +296,25 @@ export async function sendCustomNotification(eventId, { subject, message, sendTo
 }
 
 /**
+ * Get admin system dashboard data
+ * @returns {Promise<Object>} Full dashboard payload
+ */
+export async function getDashboard() {
+    try {
+        const response = await apiService.get(API_CONFIG.ENDPOINTS.ADMIN_DASHBOARD);
+
+        if (!response.success) {
+            throw new Error(response.message || 'Failed to load dashboard');
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('AdminService: Failed to get dashboard:', error);
+        throw error;
+    }
+}
+
+/**
  * Remove a boat from a crew member's whitelist
  * @param {string} crewKey - Crew key
  * @param {string} boatKey - Boat key

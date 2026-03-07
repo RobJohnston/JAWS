@@ -15,6 +15,7 @@ use App\Application\UseCase\Admin\GetParticipantEmailsUseCase;
 use App\Application\UseCase\Admin\GetUserDetailUseCase;
 use App\Application\UseCase\Admin\RemoveFromCrewWhitelistUseCase;
 use App\Application\UseCase\Admin\SendCustomNotificationUseCase;
+use App\Application\UseCase\Admin\GetDashboardUseCase;
 use App\Application\UseCase\Admin\SetCrewCommitmentRankUseCase;
 use App\Application\UseCase\Admin\SetUserAdminUseCase;
 use App\Application\UseCase\Admin\UpdateCrewProfileUseCase;
@@ -48,6 +49,7 @@ class AdminControllerTest extends TestCase
             $this->createStub(AddToCrewWhitelistUseCase::class),
             $this->createStub(RemoveFromCrewWhitelistUseCase::class),
             $this->createStub(SetCrewCommitmentRankUseCase::class),
+            $this->createStub(GetDashboardUseCase::class),
         );
     }
 

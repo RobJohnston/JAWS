@@ -88,7 +88,7 @@ export function addAdminLink(user) {
     // Insert Admin link after Dashboard link
     const adminLi = document.createElement('li');
     adminLi.id = 'nav-admin';
-    adminLi.innerHTML = '<a href="admin.html">Admin</a>';
+    adminLi.innerHTML = '<a href="admin-dashboard.html">Admin</a>';
 
     // Find the parent ul and insert after nav-account
     const parentUl = navAccount.parentElement;
