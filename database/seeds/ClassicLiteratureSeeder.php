@@ -34,7 +34,7 @@ use Phinx\Seed\AbstractSeed;
  *   HIGH_SKILL/LOW_SKILL — 5 boats, 3 skill levels
  *   REPEAT    — Silver: 3× history on hispaniola; Quintal: 3× unassigned
  *
- * rank_membership=1 (non-members): Hawkins, Gunn, Quintal, Ishmael
+ * rank_membership=0 (non-members): Hawkins, Gunn, Quintal, Ishmael
  *
  * Usage:
  *   vendor/bin/phinx seed:run -s ClassicLiteratureSeeder
@@ -174,7 +174,7 @@ class ClassicLiteratureSeeder extends AbstractSeed
         // ====================================================================
         // Seed crew — 19 members across 4 source works
         //
-        // rank_membership=1 (non-NSC-member) for: Hawkins, Gunn, Quintal, Ishmael
+        // rank_membership=0 (non-NSC-member) for: Hawkins, Gunn, Quintal, Ishmael
         // PARTNER pair: Trelawney (partner_key='dr-livesey') + Livesey (partner_key='squire-trelawney')
         // Skill distribution: skill-0 × 4, skill-1 × 10, skill-2 × 5
         // ====================================================================
@@ -183,31 +183,31 @@ class ClassicLiteratureSeeder extends AbstractSeed
                                skill, membership_number, rank_membership, user_id)
             VALUES
                 -- Treasure Island
-                ('long-john-silver',  'Long John Silver',  'John',     'Silver',    NULL,              '555-PARROT',   2, 'NSC400', 0, (SELECT id FROM users WHERE email = 'long.john.silver@example.com')),
-                ('jim-hawkins',       'Jim Hawkins',       'Jim',      'Hawkins',   NULL,              '555-CABIN',    0, NULL,     1, (SELECT id FROM users WHERE email = 'jim.hawkins@example.com')),
-                ('squire-trelawney',  'Squire Trelawney',  'John',     'Trelawney', 'dr-livesey',      '555-SQUIRE',   1, 'NSC401', 0, (SELECT id FROM users WHERE email = 'squire.trelawney@example.com')),
-                ('dr-livesey',        'Dr. Livesey',       'David',    'Livesey',   'squire-trelawney','555-DOCTOR',   1, 'NSC402', 0, (SELECT id FROM users WHERE email = 'dr.livesey@example.com')),
-                ('ben-gunn',          'Ben Gunn',          'Ben',      'Gunn',      NULL,              '555-MAROONED', 1, NULL,     1, (SELECT id FROM users WHERE email = 'ben.gunn@example.com')),
+                ('long-john-silver',  'Long John Silver',  'John',     'Silver',    NULL,              '555-PARROT',   2, 'NSC400', 1, (SELECT id FROM users WHERE email = 'long.john.silver@example.com')),
+                ('jim-hawkins',       'Jim Hawkins',       'Jim',      'Hawkins',   NULL,              '555-CABIN',    0, NULL,     0, (SELECT id FROM users WHERE email = 'jim.hawkins@example.com')),
+                ('squire-trelawney',  'Squire Trelawney',  'John',     'Trelawney', 'dr-livesey',      '555-SQUIRE',   1, 'NSC401', 1, (SELECT id FROM users WHERE email = 'squire.trelawney@example.com')),
+                ('dr-livesey',        'Dr. Livesey',       'David',    'Livesey',   'squire-trelawney','555-DOCTOR',   1, 'NSC402', 1, (SELECT id FROM users WHERE email = 'dr.livesey@example.com')),
+                ('ben-gunn',          'Ben Gunn',          'Ben',      'Gunn',      NULL,              '555-MAROONED', 1, NULL,     0, (SELECT id FROM users WHERE email = 'ben.gunn@example.com')),
 
                 -- Mutiny on the Bounty
-                ('fletcher-christian','Fletcher Christian','Fletcher', 'Christian', NULL,              '555-MUTINY',   2, 'NSC403', 0, (SELECT id FROM users WHERE email = 'fletcher.christian@example.com')),
-                ('john-adams',        'John Adams',        'John',     'Adams',     NULL,              '555-PITCAIRN', 1, 'NSC404', 0, (SELECT id FROM users WHERE email = 'john.adams@example.com')),
-                ('william-mccoy',     'William McCoy',     'William',  'McCoy',     NULL,              '555-MCCOY',    1, 'NSC405', 0, (SELECT id FROM users WHERE email = 'william.mccoy@example.com')),
-                ('ned-young',         'Ned Young',         'Ned',      'Young',     NULL,              '555-YOUNG',    1, 'NSC406', 0, (SELECT id FROM users WHERE email = 'ned.young@example.com')),
-                ('matthew-quintal',   'Matthew Quintal',   'Matthew',  'Quintal',   NULL,              '555-QUINTAL',  0, NULL,     1, (SELECT id FROM users WHERE email = 'matthew.quintal@example.com')),
+                ('fletcher-christian','Fletcher Christian','Fletcher', 'Christian', NULL,              '555-MUTINY',   2, 'NSC403', 1, (SELECT id FROM users WHERE email = 'fletcher.christian@example.com')),
+                ('john-adams',        'John Adams',        'John',     'Adams',     NULL,              '555-PITCAIRN', 1, 'NSC404', 1, (SELECT id FROM users WHERE email = 'john.adams@example.com')),
+                ('william-mccoy',     'William McCoy',     'William',  'McCoy',     NULL,              '555-MCCOY',    1, 'NSC405', 1, (SELECT id FROM users WHERE email = 'william.mccoy@example.com')),
+                ('ned-young',         'Ned Young',         'Ned',      'Young',     NULL,              '555-YOUNG',    1, 'NSC406', 1, (SELECT id FROM users WHERE email = 'ned.young@example.com')),
+                ('matthew-quintal',   'Matthew Quintal',   'Matthew',  'Quintal',   NULL,              '555-QUINTAL',  0, NULL,     0, (SELECT id FROM users WHERE email = 'matthew.quintal@example.com')),
 
                 -- Swallows & Amazons
-                ('susan-walker',      'Susan Walker',      'Susan',    'Walker',    NULL,              '555-SUSAN',    1, 'NSC407', 0, (SELECT id FROM users WHERE email = 'susan.walker@example.com')),
-                ('titty-walker',      'Titty Walker',      'Titty',    'Walker',    NULL,              '555-TITTY',    1, 'NSC408', 0, (SELECT id FROM users WHERE email = 'titty.walker@example.com')),
-                ('roger-walker',      'Roger Walker',      'Roger',    'Walker',    NULL,              '555-ROGER',    0, 'NSC409', 0, (SELECT id FROM users WHERE email = 'roger.walker@example.com')),
-                ('peggy-blackett',    'Peggy Blackett',    'Peggy',    'Blackett',  NULL,              '555-PEGGY',    1, 'NSC410', 0, (SELECT id FROM users WHERE email = 'peggy.blackett@example.com')),
+                ('susan-walker',      'Susan Walker',      'Susan',    'Walker',    NULL,              '555-SUSAN',    1, 'NSC407', 1, (SELECT id FROM users WHERE email = 'susan.walker@example.com')),
+                ('titty-walker',      'Titty Walker',      'Titty',    'Walker',    NULL,              '555-TITTY',    1, 'NSC408', 1, (SELECT id FROM users WHERE email = 'titty.walker@example.com')),
+                ('roger-walker',      'Roger Walker',      'Roger',    'Walker',    NULL,              '555-ROGER',    0, 'NSC409', 1, (SELECT id FROM users WHERE email = 'roger.walker@example.com')),
+                ('peggy-blackett',    'Peggy Blackett',    'Peggy',    'Blackett',  NULL,              '555-PEGGY',    1, 'NSC410', 1, (SELECT id FROM users WHERE email = 'peggy.blackett@example.com')),
 
                 -- Moby-Dick
-                ('starbuck',          'Starbuck',          'Starbuck', '',          NULL,              '555-STARBUCK', 2, 'NSC411', 0, (SELECT id FROM users WHERE email = 'starbuck@example.com')),
-                ('queequeg',          'Queequeg',          'Queequeg', '',          NULL,              '555-QUEEQUEG', 2, 'NSC412', 0, (SELECT id FROM users WHERE email = 'queequeg@example.com')),
-                ('stubb',             'Stubb',             'Stubb',    '',          NULL,              '555-STUBB',    1, 'NSC413', 0, (SELECT id FROM users WHERE email = 'stubb@example.com')),
-                ('flask',             'Flask',             'Flask',    '',          NULL,              '555-FLASK',    1, 'NSC414', 0, (SELECT id FROM users WHERE email = 'flask@example.com')),
-                ('ishmael',           'Ishmael',           'Ishmael',  '',          NULL,              '555-ISHMAEL',  0, NULL,     1, (SELECT id FROM users WHERE email = 'ishmael@example.com'))
+                ('starbuck',          'Starbuck',          'Starbuck', '',          NULL,              '555-STARBUCK', 2, 'NSC411', 1, (SELECT id FROM users WHERE email = 'starbuck@example.com')),
+                ('queequeg',          'Queequeg',          'Queequeg', '',          NULL,              '555-QUEEQUEG', 2, 'NSC412', 1, (SELECT id FROM users WHERE email = 'queequeg@example.com')),
+                ('stubb',             'Stubb',             'Stubb',    '',          NULL,              '555-STUBB',    1, 'NSC413', 1, (SELECT id FROM users WHERE email = 'stubb@example.com')),
+                ('flask',             'Flask',             'Flask',    '',          NULL,              '555-FLASK',    1, 'NSC414', 1, (SELECT id FROM users WHERE email = 'flask@example.com')),
+                ('ishmael',           'Ishmael',           'Ishmael',  '',          NULL,              '555-ISHMAEL',  0, NULL,     0, (SELECT id FROM users WHERE email = 'ishmael@example.com'))
         ");
 
         // ====================================================================
